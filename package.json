@@ -1,0 +1,33 @@
+{
+  "name": "changelog-gen",
+  "version": "0.0.0",
+  "description": "Small Utility to generates Changelog files",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/abe33/changelog-gen.git"
+  },
+  "bin": {
+    "changelog_gen": "./bin/changelog"
+  },
+  "keywords": [
+    "changelog",
+    "generator",
+    "git"
+  ],
+  "author": "Cédric Néhémie <cedric.nehemie@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/abe33/changelog-gen/issues"
+  },
+  "dependencies": {
+    "qq": "*"
+  },
+  "devDependencies": {
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-cli": "~0.1.8",
+    "grunt": "~0.4.1",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-shell": "~0.2.2",
+    "grunt-coffeelint": "0.0.6"
+  }
+}
