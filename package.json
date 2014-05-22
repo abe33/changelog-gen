@@ -20,7 +20,8 @@
     "url": "https://github.com/abe33/changelog-gen/issues"
   },
   "dependencies": {
-    "qq": "*"
+    "qq": "*",
+    "emoticons": "0.1.x"
   },
   "devDependencies": {
     "grunt-contrib-coffee": "~0.7.0",
