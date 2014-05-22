@@ -1,3 +1,5 @@
+{exec} = require 'child_process'
+
 module.exports = (grunt) ->
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -31,10 +33,16 @@ module.exports = (grunt) ->
         tasks: [
           'coffee'
         ]
-        
+
+    chmod:
+      default:
+        options: ''
+
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-coffeelint')
   grunt.loadNpmTasks('grunt-contrib-watch')
 
   grunt.registerTask('lint', ['coffeelint:src', 'coffeelint:test'])
-  grunt.registerTask('default', ['coffeelint', 'coffee'])
+  grunt.registerTask('default', ['coffeelint', 'coffee', 'chmod'])
+
+  grunt.registerMultiTask 'chmod', -> exec 'chmod +x ./bin/changelog'
