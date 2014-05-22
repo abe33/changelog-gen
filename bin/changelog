@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 ;
 var EMPTY_COMPONENT, GIT_LOG_CMD, GIT_TAG_CMD, HEADER_TPL, LINK_COMMIT, LINK_ISSUE, child, currentDate, fs, generate, getPreviousTag, linkToCommit, linkToIssue, parseRawCommit, printSection, q, readGitLog, util, warn, writeChangelog;
 
@@ -188,8 +187,4 @@ generate = function(version, file) {
   });
 };
 
-exports.parseRawCommit = parseRawCommit;
-
-if (process.argv.join("").indexOf("jasmine-node") === -1) {
-  generate(process.argv[2], process.argv[3]);
-}
+generate(process.argv[2], process.argv[3]);

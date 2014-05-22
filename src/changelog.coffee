@@ -1,6 +1,3 @@
-`#!/usr/bin/env node
-
-`
 
 child = require("child_process")
 fs = require("fs")

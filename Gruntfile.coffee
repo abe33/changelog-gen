@@ -7,12 +7,14 @@ module.exports = (grunt) ->
     coffee:
       options:
         bare: true
-      glob_to_multiple:
-        expand: true
-        cwd: 'src'
-        src: ['*.coffee']
-        dest: 'bin'
-        ext: ''
+        join: true
+
+      default:
+        files:
+          'bin/changelog': [
+            'src/pragma.coffee'
+            'src/changelog.coffee'
+          ]
 
     coffeelint:
       options:
