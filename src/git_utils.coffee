@@ -5,6 +5,33 @@ GIT_LOG_CMD = 'git log %s -E --format=%s %s | cat'
 GIT_LAST_TAG_CMD = 'git describe --tags --abbrev=0'
 GIT_TAGS_CMD = 'git tag'
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1'
+GIT_COMMIT_SEARCH = 'git name-rev --name-only '
+
+find_rev_index_for_commit = (commit, tags) ->
+  deferred = q.defer()
+
+  if commit in tags
+    deferred.resolve tags.indexOf(commit)
+  else
+    get_tag_of_commit(commit, tags).then (tag) ->
+      deferred.resolve tags.indexOf(tag) - 1
+
+  deferred.promise
+
+get_tag_of_commit = (sha, tags) ->
+  cmd = GIT_COMMIT_SEARCH + sha
+  deferred = q.defer()
+  child.exec cmd, (code, stdout, stderr) ->
+    if code
+      get_first_commit().then (commit) ->
+        deferred.resolve commit
+    else
+      res = stdout.replace('\n', '')
+      [tag, offset] = res.split('~')
+      tag = 'HEAD' unless tag in tags
+      deferred.resolve tag
+
+  deferred.promise
 
 get_all_tags = ->
   deferred = q.defer()

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 ;
-var FIRST_COMMIT, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, LAST_TAG, NONE, args, binPath, child, d, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, grep, node, option, options, path, q, read_git_log, util, _ref,
+var FIRST_COMMIT, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, LAST_TAG, NONE, all_tags, args, binPath, child, d, find_rev_index_for_commit, first_commit, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, grep, node, option, options, path, q, read_git_log, util, _ref,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   __slice = [].slice;
 
 child = require('child_process');
@@ -14,6 +15,43 @@ GIT_LAST_TAG_CMD = 'git describe --tags --abbrev=0';
 GIT_TAGS_CMD = 'git tag';
 
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1';
+
+GIT_COMMIT_SEARCH = 'git name-rev --name-only ';
+
+find_rev_index_for_commit = function(commit, tags) {
+  var deferred;
+  deferred = q.defer();
+  if (__indexOf.call(tags, commit) >= 0) {
+    deferred.resolve(tags.indexOf(commit));
+  } else {
+    get_tag_of_commit(commit, tags).then(function(tag) {
+      return deferred.resolve(tags.indexOf(tag) - 1);
+    });
+  }
+  return deferred.promise;
+};
+
+get_tag_of_commit = function(sha, tags) {
+  var cmd, deferred;
+  cmd = GIT_COMMIT_SEARCH + sha;
+  deferred = q.defer();
+  child.exec(cmd, function(code, stdout, stderr) {
+    var offset, res, tag, _ref;
+    if (code) {
+      return get_first_commit().then(function(commit) {
+        return deferred.resolve(commit);
+      });
+    } else {
+      res = stdout.replace('\n', '');
+      _ref = res.split('~'), tag = _ref[0], offset = _ref[1];
+      if (__indexOf.call(tags, tag) < 0) {
+        tag = 'HEAD';
+      }
+      return deferred.resolve(tag);
+    }
+  });
+  return deferred.promise;
+};
 
 get_all_tags = function() {
   var deferred;
@@ -123,14 +161,51 @@ while (args.length) {
   }
 }
 
-get_start = options.start === FIRST_COMMIT ? get_first_commit() : options.start === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.resolve(options.start), d.promise);
+first_commit = get_first_commit();
+
+get_start = options.start === FIRST_COMMIT ? first_commit : options.start === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.resolve(options.start), d.promise);
 
 get_end = options.end === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.resolve(options.end), d.promise);
 
-get_start.then(function(from) {
-  return get_end.then(function(to) {
-    return read_git_log(options.grep, from, to).then(function(commits) {
-      return console.log(commits);
+all_tags = get_all_tags();
+
+q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
+  var first_sha, from, get_end_index, get_start_index, tags, to;
+  first_sha = _arg[0], tags = _arg[1], from = _arg[2], to = _arg[3];
+  tags.unshift(first_sha);
+  tags.push(HEAD);
+  get_start_index = find_rev_index_for_commit(from, tags);
+  get_end_index = find_rev_index_for_commit(to, tags);
+  return q.all([get_start_index, get_end_index]).then(function(_arg1) {
+    var end_index, from_tag, i, read_commits, start_index, tags_steps, to_tag, _i, _ref1;
+    start_index = _arg1[0], end_index = _arg1[1];
+    read_commits = [];
+    tags_steps = [];
+    if (end_index !== start_index) {
+      for (i = _i = _ref1 = start_index + 1; _ref1 <= end_index ? _i <= end_index : _i >= end_index; i = _ref1 <= end_index ? ++_i : --_i) {
+        from_tag = tags[i - 1];
+        to_tag = tags[i];
+        tags_steps.push(to_tag);
+        read_commits.push(read_git_log(options.grep, from_tag, to_tag));
+      }
+    } else {
+      to_tag = tags[start_index];
+    }
+    if (to_tag !== to) {
+      read_commits.push(read_git_log(options.grep, to_tag, to));
+    }
+    return q.all(read_commits).then(function(commits_groups) {
+      var commits, commits_per_tag, current_tag, _j, _len;
+      commits_per_tag = [];
+      for (i = _j = 0, _len = commits_groups.length; _j < _len; i = ++_j) {
+        commits = commits_groups[i];
+        current_tag = tags_steps[i];
+        if (current_tag === HEAD) {
+          current_tag = void 0;
+        }
+        commits_per_tag.push([current_tag, commits]);
+      }
+      return console.log(commits_per_tag);
     });
   });
 });
