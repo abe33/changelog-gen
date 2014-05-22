@@ -1,23 +1,43 @@
 #!/usr/bin/env node
 ;
-var EMPTY_COMPONENT, GIT_LOG_CMD, GIT_TAG_CMD, HEADER_TPL, LINK_COMMIT, LINK_ISSUE, child, currentDate, fs, generate, getPreviousTag, get_previous_tag, linkToCommit, linkToIssue, parseRawCommit, printSection, q, readGitLog, read_git_log, util, warn, writeChangelog;
+var FIRST_COMMIT, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, LAST_TAG, NONE, args, binPath, child, d, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, grep, node, option, options, path, q, read_git_log, util, _ref,
+  __slice = [].slice;
 
 child = require('child_process');
 
 util = require('util');
 
-q = require('qq');
+GIT_LOG_CMD = 'git log %s -E --format=%s %s | cat';
 
-GIT_LOG_CMD = 'git log %s -E --format=%s %s';
+GIT_LAST_TAG_CMD = 'git describe --tags --abbrev=0';
 
-GIT_TAG_CMD = 'git describe --tags --abbrev=0';
+GIT_TAGS_CMD = 'git tag';
+
+GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1';
+
+get_all_tags = function() {
+  var deferred;
+  deferred = q.defer();
+  child.exec(GIT_TAGS_CMD, function(code, stdout, stderr) {
+    if (code) {
+      return deferred.resolve([]);
+    } else {
+      return deferred.resolve(stdout.split('\n').filter(function(s) {
+        return s.length !== 0;
+      }));
+    }
+  });
+  return deferred.promise;
+};
 
 get_previous_tag = function() {
   var deferred;
   deferred = q.defer();
-  child.exec(GIT_TAG_CMD, function(code, stdout, stderr) {
+  child.exec(GIT_LAST_TAG_CMD, function(code, stdout, stderr) {
     if (code) {
-      return deferred.reject("Cannot get the previous tag.");
+      return get_first_commit().then(function(commit) {
+        return deferred.resolve(commit);
+      });
     } else {
       return deferred.resolve(stdout.replace('\n', ''));
     }
@@ -25,17 +45,36 @@ get_previous_tag = function() {
   return deferred.promise;
 };
 
-read_git_log = function(grep, from) {
-  var deferred, range;
+get_first_commit = function() {
+  var deferred;
+  deferred = q.defer();
+  child.exec(GIT_FIRST_COMMIT, function(code, stdout, stderr) {
+    if (code) {
+      return deferred.reject("Cannot get the first commit.");
+    } else {
+      return deferred.resolve(stdout.replace('\n', ''));
+    }
+  });
+  return deferred.promise;
+};
+
+read_git_log = function(grep, from, to) {
+  var cmd, deferred, range;
+  if (to == null) {
+    to = 'HEAD';
+  }
   deferred = q.defer();
   grep = grep != null ? "--grep=\"" + grep + "\"" : '';
-  range = from != null ? "" + from + "..HEAD" : void 0;
-  child.exec(util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', range), function(code, stdout, stderr) {
+  range = from != null ? "" + from + ".." + to : '';
+  cmd = util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', range);
+  child.exec(cmd, function(code, stdout, stderr) {
     var commits;
     commits = [];
     stdout.split('\n==END==\n').forEach(function(rawCommit) {
       var commit;
-      commit = parseRawCommit(rawCommit);
+      commit = rawCommit.split('\n').filter(function(s) {
+        return s.length;
+      }).join('\n');
       if (commit) {
         return commits.push(commit);
       }
@@ -45,189 +84,53 @@ read_git_log = function(grep, from) {
   return deferred.promise;
 };
 
-child = require("child_process");
+q = require('qq');
 
-fs = require("fs");
+path = require('path');
 
-util = require("util");
+LAST_TAG = 'last-tag';
 
-q = require("qq");
+FIRST_COMMIT = 'first-commit';
 
-GIT_LOG_CMD = "git log --grep=\"%s\" -E --format=%s %s..HEAD";
+HEAD = 'HEAD';
 
-GIT_TAG_CMD = "git describe --tags --abbrev=0";
+NONE = 'none';
 
-HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n";
-
-LINK_ISSUE = "[#%s](https://github.com/angular/angular.js/issues/%s)";
-
-LINK_COMMIT = "[%s](https://github.com/angular/angular.js/commit/%s)";
-
-EMPTY_COMPONENT = "$$";
-
-warn = function() {
-  return console.log("WARNING:", util.format.apply(null, arguments_));
+options = {
+  grep: '^Add|^Fix|^Remove|^:bug:|Breaking',
+  start: LAST_TAG,
+  end: HEAD
 };
 
-parseRawCommit = function(raw) {
-  var lines, match, msg;
-  if (!raw) {
-    return null;
-  }
-  lines = raw.split("\n");
-  msg = {};
-  match = void 0;
-  msg.hash = lines.shift();
-  msg.subject = lines.shift();
-  msg.closes = [];
-  msg.breaks = [];
-  lines.forEach(function(line) {
-    match = line.match(/(?:Closes|Fixes)\s#(\d+)/);
-    if (match) {
-      return msg.closes.push(parseInt(match[1]));
-    }
-  });
-  match = raw.match(/BREAKING CHANGE:([\s\S]*)/);
-  if (match) {
-    msg.breaking = match[1];
-  }
-  msg.body = lines.join("\n");
-  match = msg.subject.match(/^(.*)\((.*)\)\:\s(.*)$/);
-  if (!match || !match[1] || !match[3]) {
-    warn("Incorrect message: %s %s", msg.hash, msg.subject);
-    return null;
-  }
-  msg.type = match[1];
-  msg.component = match[2];
-  msg.subject = match[3];
-  return msg;
-};
+_ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length ? __slice.call(_ref, 2) : [];
 
-linkToIssue = function(issue) {
-  return util.format(LINK_ISSUE, issue, issue);
-};
-
-linkToCommit = function(hash) {
-  return util.format(LINK_COMMIT, hash.substr(0, 8), hash);
-};
-
-currentDate = function() {
-  var now, pad;
-  now = new Date();
-  pad = function(i) {
-    return ("0" + i).substr(-2);
-  };
-  return util.format("%d-%s-%s", now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate()));
-};
-
-printSection = function(stream, title, section, printCommitLinks) {
-  var components;
-  printCommitLinks = (printCommitLinks === undefined ? true : printCommitLinks);
-  components = Object.getOwnPropertyNames(section).sort();
-  if (!components.length) {
-    return;
-  }
-  stream.write(util.format("\n## %s\n\n", title));
-  components.forEach(function(name) {
-    var nested, prefix;
-    prefix = "-";
-    nested = section[name].length > 1;
-    if (name !== EMPTY_COMPONENT) {
-      if (nested) {
-        stream.write(util.format("- **%s:**\n", name));
-        prefix = "  -";
+while (args.length) {
+  option = args.shift();
+  switch (option) {
+    case '--grep':
+      grep = args.shift();
+      if (grep === NONE) {
+        options.grep = null;
       } else {
-        prefix = util.format("- **%s:**", name);
+        options.grep = grep;
       }
-    }
-    return section[name].forEach(function(commit) {
-      if (printCommitLinks) {
-        stream.write(util.format("%s %s\n  (%s", prefix, commit.subject, linkToCommit(commit.hash)));
-        if (commit.closes.length) {
-          stream.write(",\n   " + commit.closes.map(linkToIssue).join(", "));
-        }
-        return stream.write(")\n");
-      } else {
-        return stream.write(util.format("%s %s", prefix, commit.subject));
-      }
+      break;
+    case '--start':
+      options.start = args.shift();
+      break;
+    case '--end':
+      options.end = args.shift();
+  }
+}
+
+get_start = options.start === FIRST_COMMIT ? get_first_commit() : options.start === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.resolve(options.start), d.promise);
+
+get_end = options.end === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.resolve(options.end), d.promise);
+
+get_start.then(function(from) {
+  return get_end.then(function(to) {
+    return read_git_log(options.grep, from, to).then(function(commits) {
+      return console.log(commits);
     });
   });
-  return stream.write("\n");
-};
-
-readGitLog = function(grep, from) {
-  var deferred;
-  deferred = q.defer();
-  child.exec(util.format(GIT_LOG_CMD, grep, "%H%n%s%n%b%n==END==", from), function(code, stdout, stderr) {
-    var commits;
-    commits = [];
-    stdout.split("\n==END==\n").forEach(function(rawCommit) {
-      var commit;
-      commit = parseRawCommit(rawCommit);
-      if (commit) {
-        return commits.push(commit);
-      }
-    });
-    return deferred.resolve(commits);
-  });
-  return deferred.promise;
-};
-
-writeChangelog = function(stream, commits, version) {
-  var sections;
-  sections = {
-    fix: {},
-    feat: {},
-    perf: {},
-    breaks: {}
-  };
-  sections.breaks[EMPTY_COMPONENT] = [];
-  commits.forEach(function(commit) {
-    var component, section;
-    section = sections[commit.type];
-    component = commit.component || EMPTY_COMPONENT;
-    if (section) {
-      section[component] = section[component] || [];
-      section[component].push(commit);
-    }
-    if (commit.breaking) {
-      sections.breaks[component] = sections.breaks[component] || [];
-      return sections.breaks[component].push({
-        subject: util.format("due to %s,\n %s", linkToCommit(commit.hash), commit.breaking),
-        hash: commit.hash,
-        closes: []
-      });
-    }
-  });
-  stream.write(util.format(HEADER_TPL, version, version, currentDate()));
-  printSection(stream, "Bug Fixes", sections.fix);
-  printSection(stream, "Features", sections.feat);
-  printSection(stream, "Performance Improvements", sections.perf);
-  return printSection(stream, "Breaking Changes", sections.breaks, false);
-};
-
-getPreviousTag = function() {
-  var deferred;
-  deferred = q.defer();
-  child.exec(GIT_TAG_CMD, function(code, stdout, stderr) {
-    if (code) {
-      return deferred.reject("Cannot get the previous tag.");
-    } else {
-      return deferred.resolve(stdout.replace("\n", ""));
-    }
-  });
-  return deferred.promise;
-};
-
-generate = function(version, file) {
-  return getPreviousTag().then(function(tag) {
-    console.log("Reading git log since", tag);
-    return readGitLog("^fix|^feat|^perf|BREAKING", tag).then(function(commits) {
-      console.log("Parsed", commits.length, "commits");
-      console.log("Generating changelog to", file || "stdout", "(", version, ")");
-      return writeChangelog((file ? fs.createWriteStream(file) : process.stdout), commits, version);
-    });
-  });
-};
-
-generate(process.argv[2], process.argv[3]);
+});

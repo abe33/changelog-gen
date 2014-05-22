@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/abe33/changelog-gen/issues"
   },
+  "commits": {
+    "url": "https://github.com/abe33/changelog-gen/commit"
+  },
   "dependencies": {
     "qq": "*",
     "emoticons": "0.1.x"
