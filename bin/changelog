@@ -1,6 +1,49 @@
 #!/usr/bin/env node
 ;
-var EMPTY_COMPONENT, GIT_LOG_CMD, GIT_TAG_CMD, HEADER_TPL, LINK_COMMIT, LINK_ISSUE, child, currentDate, fs, generate, getPreviousTag, linkToCommit, linkToIssue, parseRawCommit, printSection, q, readGitLog, util, warn, writeChangelog;
+var EMPTY_COMPONENT, GIT_LOG_CMD, GIT_TAG_CMD, HEADER_TPL, LINK_COMMIT, LINK_ISSUE, child, currentDate, fs, generate, getPreviousTag, get_previous_tag, linkToCommit, linkToIssue, parseRawCommit, printSection, q, readGitLog, read_git_log, util, warn, writeChangelog;
+
+child = require('child_process');
+
+util = require('util');
+
+q = require('qq');
+
+GIT_LOG_CMD = 'git log %s -E --format=%s %s';
+
+GIT_TAG_CMD = 'git describe --tags --abbrev=0';
+
+get_previous_tag = function() {
+  var deferred;
+  deferred = q.defer();
+  child.exec(GIT_TAG_CMD, function(code, stdout, stderr) {
+    if (code) {
+      return deferred.reject("Cannot get the previous tag.");
+    } else {
+      return deferred.resolve(stdout.replace('\n', ''));
+    }
+  });
+  return deferred.promise;
+};
+
+read_git_log = function(grep, from) {
+  var deferred, range;
+  deferred = q.defer();
+  grep = grep != null ? "--grep=\"" + grep + "\"" : '';
+  range = from != null ? "" + from + "..HEAD" : void 0;
+  child.exec(util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', range), function(code, stdout, stderr) {
+    var commits;
+    commits = [];
+    stdout.split('\n==END==\n').forEach(function(rawCommit) {
+      var commit;
+      commit = parseRawCommit(rawCommit);
+      if (commit) {
+        return commits.push(commit);
+      }
+    });
+    return deferred.resolve(commits);
+  });
+  return deferred.promise;
+};
 
 child = require("child_process");
 

@@ -13,6 +13,7 @@ module.exports = (grunt) ->
         files:
           'bin/changelog': [
             'src/pragma.coffee'
+            'src/git_utils.coffee'
             'src/changelog.coffee'
           ]
 
