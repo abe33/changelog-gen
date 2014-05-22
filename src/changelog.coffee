@@ -1,4 +1,6 @@
-`#!/usr/bin/env node`
+`#!/usr/bin/env node
+
+`
 
 # TODO(vojta): pre-commit hook for validating messages
 # TODO(vojta): report errors, currently Q silence everything which really sucks

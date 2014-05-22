@@ -1,4 +1,6 @@
-#!/usr/bin/env node;
+#!/usr/bin/env node
+
+;
 var EMPTY_COMPONENT, GIT_LOG_CMD, GIT_TAG_CMD, HEADER_TPL, LINK_COMMIT, LINK_ISSUE, child, currentDate, fs, generate, getPreviousTag, linkToCommit, linkToIssue, parseRawCommit, printSection, q, readGitLog, util, warn, writeChangelog;
 
 child = require("child_process");
@@ -22,7 +24,7 @@ LINK_COMMIT = "[%s](https://github.com/angular/angular.js/commit/%s)";
 EMPTY_COMPONENT = "$$";
 
 warn = function() {
-  console.log("WARNING:", util.format.apply(null, arguments_));
+  return console.log("WARNING:", util.format.apply(null, arguments_));
 };
 
 parseRawCommit = function(raw) {
@@ -40,7 +42,7 @@ parseRawCommit = function(raw) {
   lines.forEach(function(line) {
     match = line.match(/(?:Closes|Fixes)\s#(\d+)/);
     if (match) {
-      msg.closes.push(parseInt(match[1]));
+      return msg.closes.push(parseInt(match[1]));
     }
   });
   match = raw.match(/BREAKING CHANGE:([\s\S]*)/);
@@ -96,19 +98,19 @@ printSection = function(stream, title, section, printCommitLinks) {
         prefix = util.format("- **%s:**", name);
       }
     }
-    section[name].forEach(function(commit) {
+    return section[name].forEach(function(commit) {
       if (printCommitLinks) {
         stream.write(util.format("%s %s\n  (%s", prefix, commit.subject, linkToCommit(commit.hash)));
         if (commit.closes.length) {
           stream.write(",\n   " + commit.closes.map(linkToIssue).join(", "));
         }
-        stream.write(")\n");
+        return stream.write(")\n");
       } else {
-        stream.write(util.format("%s %s", prefix, commit.subject));
+        return stream.write(util.format("%s %s", prefix, commit.subject));
       }
     });
   });
-  stream.write("\n");
+  return stream.write("\n");
 };
 
 readGitLog = function(grep, from) {
@@ -121,10 +123,10 @@ readGitLog = function(grep, from) {
       var commit;
       commit = parseRawCommit(rawCommit);
       if (commit) {
-        commits.push(commit);
+        return commits.push(commit);
       }
     });
-    deferred.resolve(commits);
+    return deferred.resolve(commits);
   });
   return deferred.promise;
 };
@@ -148,7 +150,7 @@ writeChangelog = function(stream, commits, version) {
     }
     if (commit.breaking) {
       sections.breaks[component] = sections.breaks[component] || [];
-      sections.breaks[component].push({
+      return sections.breaks[component].push({
         subject: util.format("due to %s,\n %s", linkToCommit(commit.hash), commit.breaking),
         hash: commit.hash,
         closes: []
@@ -159,7 +161,7 @@ writeChangelog = function(stream, commits, version) {
   printSection(stream, "Bug Fixes", sections.fix);
   printSection(stream, "Features", sections.feat);
   printSection(stream, "Performance Improvements", sections.perf);
-  printSection(stream, "Breaking Changes", sections.breaks, false);
+  return printSection(stream, "Breaking Changes", sections.breaks, false);
 };
 
 getPreviousTag = function() {
@@ -167,21 +169,21 @@ getPreviousTag = function() {
   deferred = q.defer();
   child.exec(GIT_TAG_CMD, function(code, stdout, stderr) {
     if (code) {
-      deferred.reject("Cannot get the previous tag.");
+      return deferred.reject("Cannot get the previous tag.");
     } else {
-      deferred.resolve(stdout.replace("\n", ""));
+      return deferred.resolve(stdout.replace("\n", ""));
     }
   });
   return deferred.promise;
 };
 
 generate = function(version, file) {
-  getPreviousTag().then(function(tag) {
+  return getPreviousTag().then(function(tag) {
     console.log("Reading git log since", tag);
-    readGitLog("^fix|^feat|^perf|BREAKING", tag).then(function(commits) {
+    return readGitLog("^fix|^feat|^perf|BREAKING", tag).then(function(commits) {
       console.log("Parsed", commits.length, "commits");
       console.log("Generating changelog to", file || "stdout", "(", version, ")");
-      writeChangelog((file ? fs.createWriteStream(file) : process.stdout), commits, version);
+      return writeChangelog((file ? fs.createWriteStream(file) : process.stdout), commits, version);
     });
   });
 };
