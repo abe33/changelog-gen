@@ -15,6 +15,7 @@ module.exports = (grunt) ->
             'src/pragma.coffee'
             'src/boot.coffee'
             'src/git_utils.coffee'
+            'src/markdown_utils.coffee'
             'src/changelog.coffee'
           ]
 
