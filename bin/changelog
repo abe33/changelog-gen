@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var FIRST_COMMIT, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, LAST_TAG, NONE, all_tags, args, binPath, child, d, find_rev_index_for_commit, first_commit, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, grep, node, option, options, path, q, read_git_log, util, _ref,
+var COMMIT_URL, FIRST_COMMIT, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, PACKAGE_JSON, all_tags, args, binPath, child, d, error, find_rev_index_for_commit, first_commit, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, grep, node, option, options, path, q, read_git_log, string_or_url, util, warn, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   __slice = [].slice;
 
@@ -35,6 +35,44 @@ options = {
   start: LAST_TAG,
   end: HEAD
 };
+
+warn = function() {
+  return console.log("WARNING:", util.format.apply(null, arguments_));
+};
+
+error = function() {
+  console.log("ERROR:", util.format.apply(null, arguments_));
+  return process.exit();
+};
+
+string_or_url = function(field) {
+  if (typeof field === 'string') {
+    return field;
+  } else {
+    return field.url;
+  }
+};
+
+PACKAGE_JSON = require(path.resolve('.', 'package.json'));
+
+ISSUE_URL = string_or_url(PACKAGE_JSON.bugs);
+
+COMMIT_URL = string_or_url(PACKAGE_JSON.commits);
+
+if (ISSUE_URL == null) {
+  return error("Can't locate the `bugs` field in package.json");
+}
+
+if (COMMIT_URL == null) {
+  warn("Can't locate the `commits` field in package.json, building it using bugs url");
+  COMMIT_URL = ISSUE_URL.replace('issues', 'commit');
+}
+
+HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n";
+
+LINK_ISSUE = "[#%s](" + ISSUE_URL + "/%s)";
+
+LINK_COMMIT = "[%s](" + COMMIT_URL + "/%s)";
 
 find_rev_index_for_commit = function(commit, tags) {
   var deferred;
