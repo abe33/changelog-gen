@@ -1,15 +1,4 @@
-q = require 'qq'
-path = require 'path'
 
-LAST_TAG = 'last-tag'
-FIRST_COMMIT = 'first-commit'
-HEAD = 'HEAD'
-NONE = 'none'
-
-options =
-  grep: '^Add|^Fix|^Remove|^:bug:|Breaking'
-  start: LAST_TAG
-  end: HEAD
 
 [node, binPath, args...] = process.argv
 

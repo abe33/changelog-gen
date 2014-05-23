@@ -4,9 +4,21 @@ var FIRST_COMMIT, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   __slice = [].slice;
 
+q = require('qq');
+
+path = require('path');
+
 child = require('child_process');
 
 util = require('util');
+
+LAST_TAG = 'last-tag';
+
+FIRST_COMMIT = 'first-commit';
+
+HEAD = 'HEAD';
+
+NONE = 'none';
 
 GIT_LOG_CMD = 'git log %s -E --format=%s %s | cat';
 
@@ -17,6 +29,12 @@ GIT_TAGS_CMD = 'git tag';
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1';
 
 GIT_COMMIT_SEARCH = 'git name-rev --name-only ';
+
+options = {
+  grep: '^Add|^Fix|^Remove|^:bug:|Breaking',
+  start: LAST_TAG,
+  end: HEAD
+};
 
 find_rev_index_for_commit = function(commit, tags) {
   var deferred;
@@ -120,24 +138,6 @@ read_git_log = function(grep, from, to) {
     return deferred.resolve(commits);
   });
   return deferred.promise;
-};
-
-q = require('qq');
-
-path = require('path');
-
-LAST_TAG = 'last-tag';
-
-FIRST_COMMIT = 'first-commit';
-
-HEAD = 'HEAD';
-
-NONE = 'none';
-
-options = {
-  grep: '^Add|^Fix|^Remove|^:bug:|Breaking',
-  start: LAST_TAG,
-  end: HEAD
 };
 
 _ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length ? __slice.call(_ref, 2) : [];
