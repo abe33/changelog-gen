@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var COMMIT_URL, FIRST_COMMIT, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, PACKAGE_JSON, all_tags, args, binPath, child, d, error, find_rev_index_for_commit, first_commit, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, grep, node, option, options, path, q, read_git_log, string_or_url, util, warn, _ref,
+var COMMIT_URL, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, curate_sections, current_date, d, error, find_fixes, find_rev_index_for_commit, first_commit, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, grep, link_to_commit, link_to_issue, natural_sort, node, option, options, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, stream, string_or_url, util, warn, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   __slice = [].slice;
 
@@ -12,9 +12,11 @@ child = require('child_process');
 
 util = require('util');
 
+natural_sort = require('javascript-natural-sort');
+
 LAST_TAG = 'last-tag';
 
-FIRST_COMMIT = 'first-commit';
+FIRST_COMMIT = 'TAIL';
 
 HEAD = 'HEAD';
 
@@ -37,11 +39,11 @@ options = {
 };
 
 warn = function() {
-  return console.log("WARNING:", util.format.apply(null, arguments_));
+  return console.log("WARNING:", util.format.apply(null, arguments));
 };
 
 error = function() {
-  console.log("ERROR:", util.format.apply(null, arguments_));
+  console.log("ERROR:", util.format.apply(null, arguments));
   return process.exit();
 };
 
@@ -49,18 +51,26 @@ string_or_url = function(field) {
   if (typeof field === 'string') {
     return field;
   } else {
-    return field.url;
+    return field != null ? field.url : void 0;
   }
 };
 
 PACKAGE_JSON = require(path.resolve('.', 'package.json'));
+
+GITHUB_URL = 'https://github.com/';
+
+REPO_URL = string_or_url(PACKAGE_JSON.repository);
 
 ISSUE_URL = string_or_url(PACKAGE_JSON.bugs);
 
 COMMIT_URL = string_or_url(PACKAGE_JSON.commits);
 
 if (ISSUE_URL == null) {
-  return error("Can't locate the `bugs` field in package.json");
+  if ((REPO_URL != null) && REPO_URL.indexOf('http') === 0) {
+    ISSUE_URL = REPO_URL + '/issues';
+  } else {
+    return error("Can't locate the `bugs` field in package.json");
+  }
 }
 
 if (COMMIT_URL == null) {
@@ -72,7 +82,11 @@ HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n";
 
 LINK_ISSUE = "[#%s](" + ISSUE_URL + "/%s)";
 
+EXTERNAL_LINK_ISSUE = "[#%s](" + GITHUB_URL + "/%s/%s)";
+
 LINK_COMMIT = "[%s](" + COMMIT_URL + "/%s)";
+
+stream = process.stdout;
 
 find_rev_index_for_commit = function(commit, tags) {
   var deferred;
@@ -178,6 +192,144 @@ read_git_log = function(grep, from, to) {
   return deferred.promise;
 };
 
+reverse_array = function(array) {
+  var a, o, _i, _len;
+  a = [];
+  for (_i = 0, _len = array.length; _i < _len; _i++) {
+    o = array[_i];
+    a.unshift(o);
+  }
+  return a;
+};
+
+link_to_issue = function(_arg) {
+  var issue, repo;
+  repo = _arg[0], issue = _arg[1];
+  if (repo != null) {
+    return util.format(EXTERNAL_LINK_ISSUE, issue, repo, issue);
+  } else {
+    return util.format(LINK_ISSUE, issue, issue);
+  }
+};
+
+link_to_commit = function(hash) {
+  return util.format(LINK_COMMIT, hash.substr(0, 8), hash);
+};
+
+current_date = function() {
+  var now, pad;
+  now = new Date();
+  pad = function(i) {
+    return ("0" + i).substr(-2);
+  };
+  return util.format("%d-%s-%s", now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate()));
+};
+
+find_fixes = function(line, msg) {
+  var issue, issue_re, match, re, repo, _;
+  issue_re = "([^\\s/]+/[^\\s#])?#(\\d+)";
+  re = RegExp("(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\\s" + issue_re, "i");
+  match = re.exec(line);
+  if (match != null) {
+    _ = match[0], repo = match[1], issue = match[2];
+    msg.closes.push([repo, issue]);
+  }
+  return match == null;
+};
+
+parse_raw_commit = function(raw) {
+  var lines, match, msg;
+  if (raw == null) {
+    return null;
+  }
+  lines = raw.split('\n');
+  msg = {};
+  msg.hash = lines.shift();
+  msg.subject = lines.shift();
+  msg.closes = [];
+  lines = lines.filter(function(line) {
+    return find_fixes(line, msg);
+  });
+  match = raw.match(/BREAKING CHANGE:([\s\S]*)/);
+  if (match) {
+    msg.breaking = match[1];
+  }
+  msg.body = lines.join("\n");
+  return msg;
+};
+
+curate_sections = function(tags_steps) {
+  return function(commits_groups) {
+    var commit, commits, commits_per_tag, current_tag, i, parsed_commit, section, sections, tag, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+    commits_per_tag = [];
+    for (i = _i = 0, _len = commits_groups.length; _i < _len; i = ++_i) {
+      commits = commits_groups[i];
+      current_tag = tags_steps[i];
+      if (current_tag === HEAD) {
+        current_tag = void 0;
+      }
+      commits_per_tag.push([current_tag, commits]);
+    }
+    sections = [];
+    _ref = reverse_array(commits_per_tag);
+    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+      _ref1 = _ref[_j], tag = _ref1[0], commits = _ref1[1];
+      if (commits.length === 0) {
+        continue;
+      }
+      section = {
+        tag: tag,
+        commits: []
+      };
+      for (_k = 0, _len2 = commits.length; _k < _len2; _k++) {
+        commit = commits[_k];
+        parsed_commit = parse_raw_commit(commit);
+        section.commits.push(parsed_commit);
+      }
+      sections.push(section);
+    }
+    return sections;
+  };
+};
+
+print_section = function(section) {
+  var breaking_commits, closes, commit, commit_body, l, _i, _j, _len, _len1, _ref;
+  stream.write(util.format(HEADER_TPL, section.tag, section.tag, current_date()));
+  stream.write('## Changes\n\n');
+  _ref = section.commits;
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    commit = _ref[_i];
+    closes = commit.closes.map(link_to_issue).join(', ');
+    if (closes.length > 0) {
+      closes = ", " + closes;
+    }
+    commit_body = commit.body.length > 0 ? "<br>" + commit.body : '';
+    l = "- " + commit.subject + " (" + (link_to_commit(commit.hash)) + closes + ")" + commit_body + "\n";
+    stream.write(l);
+  }
+  breaking_commits = section.commits.filter(function(c) {
+    return c.breaking != null;
+  });
+  if (breaking_commits.length) {
+    stream.write('## Breaking\n\n');
+    for (_j = 0, _len1 = breakin_commits.length; _j < _len1; _j++) {
+      commit = breakin_commits[_j];
+      stream.write(commit.breaking);
+    }
+  }
+  return stream.write('\n');
+};
+
+print_sections = function(sections) {
+  var section, _i, _len, _results;
+  _results = [];
+  for (_i = 0, _len = sections.length; _i < _len; _i++) {
+    section = sections[_i];
+    _results.push(print_section(section));
+  }
+  return _results;
+};
+
 _ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length ? __slice.call(_ref, 2) : [];
 
 while (args.length) {
@@ -210,6 +362,7 @@ all_tags = get_all_tags();
 q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
   var first_sha, from, get_end_index, get_start_index, tags, to;
   first_sha = _arg[0], tags = _arg[1], from = _arg[2], to = _arg[3];
+  tags = tags.sort(natural_sort);
   tags.unshift(first_sha);
   tags.push(HEAD);
   get_start_index = find_rev_index_for_commit(from, tags);
@@ -232,18 +385,8 @@ q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
     if (to_tag !== to) {
       read_commits.push(read_git_log(options.grep, to_tag, to));
     }
-    return q.all(read_commits).then(function(commits_groups) {
-      var commits, commits_per_tag, current_tag, _j, _len;
-      commits_per_tag = [];
-      for (i = _j = 0, _len = commits_groups.length; _j < _len; i = ++_j) {
-        commits = commits_groups[i];
-        current_tag = tags_steps[i];
-        if (current_tag === HEAD) {
-          current_tag = void 0;
-        }
-        commits_per_tag.push([current_tag, commits]);
-      }
-      return console.log(commits_per_tag);
+    return q.all(read_commits).then(curate_sections(tags_steps)).then(print_sections).fail(function(reason) {
+      return console.log(reason);
     });
   });
 });

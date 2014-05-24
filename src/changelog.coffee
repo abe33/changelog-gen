@@ -39,6 +39,7 @@ else
 
 all_tags = get_all_tags()
 q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from, to]) ->
+  tags = tags.sort(natural_sort)
   tags.unshift first_sha
   tags.push HEAD
   get_start_index = find_rev_index_for_commit(from, tags)
@@ -60,13 +61,8 @@ q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from
     unless to_tag is to
       read_commits.push read_git_log(options.grep, to_tag, to)
 
-    q.all(read_commits).then (commits_groups) ->
-      commits_per_tag = []
-      for commits,i in commits_groups
-        current_tag = tags_steps[i]
-        # We don't really want to have HEAD considered as a tag,
-        # so we'll mark it as undefined
-        current_tag = undefined if current_tag is HEAD
-        commits_per_tag.push [current_tag, commits]
-
-      console.log commits_per_tag
+    q.all(read_commits)
+    .then(curate_sections(tags_steps))
+    .then(print_sections)
+    .fail (reason) ->
+      console.log reason

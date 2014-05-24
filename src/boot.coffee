@@ -2,9 +2,10 @@ q = require 'qq'
 path = require 'path'
 child = require 'child_process'
 util = require 'util'
+natural_sort = require 'javascript-natural-sort'
 
 LAST_TAG = 'last-tag'
-FIRST_COMMIT = 'first-commit'
+FIRST_COMMIT = 'TAIL'
 HEAD = 'HEAD'
 NONE = 'none'
 
@@ -19,23 +20,31 @@ options =
   start: LAST_TAG
   end: HEAD
 
-warn = -> console.log "WARNING:", util.format.apply(null, arguments_)
+warn = ->
+  console.log "WARNING:", util.format.apply(null, arguments)
+
 error = ->
-  console.log "ERROR:", util.format.apply(null, arguments_)
+  console.log "ERROR:", util.format.apply(null, arguments)
   process.exit()
 
 string_or_url = (field) ->
   if typeof field is 'string'
     field
   else
-    field.url
+    field?.url
 
 PACKAGE_JSON = require path.resolve('.', 'package.json')
 
+GITHUB_URL = 'https://github.com/'
+REPO_URL = string_or_url(PACKAGE_JSON.repository)
 ISSUE_URL = string_or_url(PACKAGE_JSON.bugs)
 COMMIT_URL = string_or_url(PACKAGE_JSON.commits)
 
-return error("Can't locate the `bugs` field in package.json") unless ISSUE_URL?
+unless ISSUE_URL?
+  if REPO_URL? and REPO_URL.indexOf('http') is 0
+    ISSUE_URL = REPO_URL + '/issues'
+  else
+    return error("Can't locate the `bugs` field in package.json")
 
 unless COMMIT_URL?
   warn("Can't locate the `commits` field in package.json, building it using bugs url")
@@ -43,4 +52,7 @@ unless COMMIT_URL?
 
 HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n"
 LINK_ISSUE = "[#%s](#{ISSUE_URL}/%s)"
+EXTERNAL_LINK_ISSUE = "[#%s](#{GITHUB_URL}/%s/%s)"
 LINK_COMMIT = "[%s](#{COMMIT_URL}/%s)"
+
+stream = process.stdout

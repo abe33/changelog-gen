@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "qq": "*",
-    "emoticons": "0.1.x"
+    "emoticons": "0.1.x",
+    "javascript-natural-sort": "~0.7.1"
   },
   "devDependencies": {
     "grunt-contrib-coffee": "~0.7.0",
