@@ -96,7 +96,7 @@ if (COMMIT_URL == null) {
   COMMIT_URL = ISSUE_URL.replace('issues', 'commit');
 }
 
-HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n";
+HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n\n";
 
 LINK_ISSUE = "[#%s](" + ISSUE_URL + "/%s)";
 

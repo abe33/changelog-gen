@@ -57,7 +57,7 @@ unless COMMIT_URL?
   warn("Can't locate the `commits` field in package.json, building it using bugs url")
   COMMIT_URL = ISSUE_URL.replace('issues', 'commit')
 
-HEADER_TPL = "<a name=\"%s\"></a>\n# %s (%s)\n\n"
+HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n\n"
 LINK_ISSUE = "[#%s](#{ISSUE_URL}/%s)"
 EXTERNAL_LINK_ISSUE = "[#%s](#{GITHUB_URL}/%s/%s)"
 LINK_COMMIT = "[%s](#{COMMIT_URL}/%s)"
