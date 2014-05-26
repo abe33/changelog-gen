@@ -154,20 +154,24 @@ find_rev_index_for_commit = function(commit, tags) {
   return deferred.promise;
 };
 
-filter_commit = function(_arg) {
-  var breaking, closes, regexp, subject, _j, _len1, _ref2;
-  subject = _arg.subject, breaking = _arg.breaking, closes = _arg.closes;
+filter_commit = function(commit) {
+  var breaking, closes, name, regexp, subject, _j, _len1, _ref2, _ref3;
+  if (commit == null) {
+    return false;
+  }
+  subject = commit.subject, breaking = commit.breaking, closes = commit.closes;
   if (subject == null) {
     return false;
   }
   _ref2 = CONFIG.sections;
   for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-    regexp = _ref2[_j].regexp;
+    _ref3 = _ref2[_j], regexp = _ref3.regexp, name = _ref3.name;
     if (regexp.testSync(subject)) {
+      commit.section = name;
       return true;
     }
   }
-  if ((breaking != null) || (closes != null ? closes.length : void 0) > 0) {
+  if (breaking != null) {
     return true;
   }
   return false;
@@ -326,7 +330,7 @@ find_fixes = function(line, msg) {
 
 curate_sections = function(tags_steps) {
   return function(commits_groups) {
-    var commit, commits, commits_per_tag, current_tag, sections, tag, _j, _k, _l, _len1, _len2, _len3, _ref2, _ref3;
+    var commit, commits, commits_per_tag, current_tag, sections, tag, _base, _j, _k, _l, _len1, _len2, _len3, _name, _ref2, _ref3;
     commits_per_tag = [];
     for (i = _j = 0, _len1 = commits_groups.length; _j < _len1; i = ++_j) {
       commits = commits_groups[i];
@@ -345,11 +349,17 @@ curate_sections = function(tags_steps) {
       }
       section = {
         tag: tag,
-        commits: []
+        commits: {},
+        breaks: []
       };
       for (_l = 0, _len3 = commits.length; _l < _len3; _l++) {
         commit = commits[_l];
-        section.commits.push(commit);
+        if (commit.section != null) {
+          ((_base = section.commits)[_name = commit.section] || (_base[_name] = [])).push(commit);
+          if (commit.breaking != null) {
+            section.breaks.push(commit);
+          }
+        }
       }
       sections.push(section);
     }
@@ -358,23 +368,24 @@ curate_sections = function(tags_steps) {
 };
 
 print_section = function(section) {
-  var breaking_commits, closes, commit, commit_body, l, _j, _k, _len1, _len2, _ref2;
+  var breaking_commits, closes, commit, commit_body, commits, l, section_name, _j, _k, _len1, _len2, _ref2;
   stream.write(util.format(HEADER_TPL, section.tag, section.tag, current_date()));
-  stream.write('## Changes\n\n');
   _ref2 = section.commits;
-  for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-    commit = _ref2[_j];
-    closes = commit.closes.map(link_to_issue).join(', ');
-    if (closes.length > 0) {
-      closes = ", " + closes;
+  for (section_name in _ref2) {
+    commits = _ref2[section_name];
+    stream.write("## " + section_name + "\n\n");
+    for (_j = 0, _len1 = commits.length; _j < _len1; _j++) {
+      commit = commits[_j];
+      closes = commit.closes.map(link_to_issue).join(', ');
+      if (closes.length > 0) {
+        closes = ", " + closes;
+      }
+      commit_body = commit.body.length > 0 ? "<br>" + commit.body : '';
+      l = "- " + commit.subject + " (" + (link_to_commit(commit.hash)) + closes + ")" + commit_body + "\n";
+      stream.write(l);
     }
-    commit_body = commit.body.length > 0 ? "<br>" + commit.body : '';
-    l = "- " + commit.subject + " (" + (link_to_commit(commit.hash)) + closes + ")" + commit_body + "\n";
-    stream.write(l);
   }
-  breaking_commits = section.commits.filter(function(c) {
-    return c.breaking != null;
-  });
+  breaking_commits = section.breaks;
   if (breaking_commits.length) {
     stream.write('## Breaking\n\n');
     for (_k = 0, _len2 = breakin_commits.length; _k < _len2; _k++) {

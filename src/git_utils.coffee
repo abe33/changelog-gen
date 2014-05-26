@@ -10,10 +10,18 @@ find_rev_index_for_commit = (commit, tags) ->
 
   deferred.promise
 
-filter_commit = ({subject, breaking, closes}) ->
+filter_commit = (commit) ->
+  return false unless commit?
+  {subject, breaking, closes} = commit
   return false unless subject?
-  return true for {regexp} in CONFIG.sections when regexp.testSync(subject)
-  return true if breaking? or closes?.length > 0
+
+  for {regexp, name} in CONFIG.sections
+    if regexp.testSync(subject)
+      commit.section = name
+      return true
+
+  return true if breaking?
+
   false
 
 get_tag_of_commit = (sha, tags) ->

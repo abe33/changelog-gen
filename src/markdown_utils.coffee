@@ -52,11 +52,14 @@ curate_sections = (tags_steps) -> (commits_groups) ->
     continue if commits.length is 0
     section = {
       tag
-      commits: []
+      commits: {}
+      breaks: []
     }
 
     for commit in commits
-      section.commits.push commit
+      if commit.section?
+        (section.commits[commit.section] ||= []).push commit
+        section.breaks.push commit if commit.breaking?
 
     sections.push section
 
@@ -65,19 +68,20 @@ curate_sections = (tags_steps) -> (commits_groups) ->
 print_section = (section) ->
   stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
 
-  stream.write '## Changes\n\n'
-  for commit in section.commits
-    closes = commit.closes.map(link_to_issue).join(', ')
-    closes = ", #{closes}" if closes.length > 0
-    commit_body = if commit.body.length > 0
-      "<br>#{commit.body}"
-    else
-      ''
+  for section_name, commits of section.commits
+    stream.write "## #{section_name}\n\n"
+    for commit in commits
+      closes = commit.closes.map(link_to_issue).join(', ')
+      closes = ", #{closes}" if closes.length > 0
+      commit_body = if commit.body.length > 0
+        "<br>#{commit.body}"
+      else
+        ''
 
-    l = "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
-    stream.write l
+      l = "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
+      stream.write l
 
-  breaking_commits = section.commits.filter (c) -> c.breaking?
+  breaking_commits = section.breaks
   if breaking_commits.length
     stream.write '## Breaking\n\n'
     for commit in breakin_commits
