@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_sections, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, i, link_to_commit, link_to_issue, natural_sort, node, option, options, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
+var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_sections, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_end, get_first_commit, get_previous_tag, get_start, get_tag_of_commit, i, link_to_commit, link_to_issue, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
   __slice = [].slice,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -73,7 +73,30 @@ string_or_url = function(field) {
   }
 };
 
-PACKAGE_JSON = require(path.resolve('.', 'package.json'));
+_ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length ? __slice.call(_ref, 2) : [];
+
+while (args.length) {
+  option = args.shift();
+  switch (option) {
+    case '--repo':
+      options.repo = args.shift();
+      break;
+    case '--config':
+      options.config = args.shift();
+      break;
+    case '--start':
+      options.start = args.shift();
+      break;
+    case '--end':
+      options.end = args.shift();
+  }
+}
+
+package_json_path = path.resolve('.', 'package.json');
+
+PACKAGE_JSON = fs.existsSync(package_json_path) ? require(package_json_path) : options.repo == null ? error("Can't locate a package.json in the current directory. Please at last specify the --repo option") : {
+  repository: options.repo
+};
 
 GITHUB_URL = 'https://github.com/';
 
@@ -105,22 +128,6 @@ EXTERNAL_LINK_ISSUE = "[#%s](" + GITHUB_URL + "/%s/%s)";
 LINK_COMMIT = "[%s](" + COMMIT_URL + "/%s)";
 
 stream = process.stdout;
-
-_ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length ? __slice.call(_ref, 2) : [];
-
-while (args.length) {
-  option = args.shift();
-  switch (option) {
-    case '--config':
-      options.config = args.shift();
-      break;
-    case '--start':
-      options.start = args.shift();
-      break;
-    case '--end':
-      options.end = args.shift();
-  }
-}
 
 config_file_paths = [DEFAULT_CONFIG];
 

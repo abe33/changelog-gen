@@ -40,7 +40,29 @@ string_or_url = (field) ->
   else
     field?.url
 
-PACKAGE_JSON = require path.resolve('.', 'package.json')
+[node, binPath, args...] = process.argv
+
+while args.length
+  option = args.shift()
+
+  switch option
+    # Commands
+    when '--repo'
+      options.repo = args.shift()
+    when '--config'
+      options.config = args.shift()
+    when '--start'
+      options.start = args.shift()
+    when '--end'
+      options.end = args.shift()
+
+package_json_path = path.resolve('.', 'package.json')
+PACKAGE_JSON = if fs.existsSync(package_json_path)
+  require package_json_path
+else unless options.repo?
+  error("Can't locate a package.json in the current directory. Please at last specify the --repo option")
+else
+  { repository: options.repo }
 
 GITHUB_URL = 'https://github.com/'
 REPO_URL = string_or_url(PACKAGE_JSON.repository)
@@ -63,20 +85,6 @@ EXTERNAL_LINK_ISSUE = "[#%s](#{GITHUB_URL}/%s/%s)"
 LINK_COMMIT = "[%s](#{COMMIT_URL}/%s)"
 
 stream = process.stdout
-
-[node, binPath, args...] = process.argv
-
-while args.length
-  option = args.shift()
-
-  switch option
-    # Commands
-    when '--config'
-      options.config = args.shift()
-    when '--start'
-      options.start = args.shift()
-    when '--end'
-      options.end = args.shift()
 
 config_file_paths = [
   DEFAULT_CONFIG
