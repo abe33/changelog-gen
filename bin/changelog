@@ -356,9 +356,9 @@ curate_sections = function(tags_steps) {
         commit = commits[_l];
         if (commit.section != null) {
           ((_base = section.commits)[_name = commit.section] || (_base[_name] = [])).push(commit);
-          if (commit.breaking != null) {
-            section.breaks.push(commit);
-          }
+        }
+        if (commit.breaking != null) {
+          section.breaks.push(commit);
         }
       }
       sections.push(section);
@@ -387,9 +387,9 @@ print_section = function(section) {
   }
   breaking_commits = section.breaks;
   if (breaking_commits.length) {
-    stream.write('## Breaking\n\n');
-    for (_k = 0, _len2 = breakin_commits.length; _k < _len2; _k++) {
-      commit = breakin_commits[_k];
+    stream.write('## Breaking Changes\n\n');
+    for (_k = 0, _len2 = breaking_commits.length; _k < _len2; _k++) {
+      commit = breaking_commits[_k];
       stream.write(commit.breaking);
     }
   }

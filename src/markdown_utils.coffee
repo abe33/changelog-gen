@@ -50,6 +50,7 @@ curate_sections = (tags_steps) -> (commits_groups) ->
 
   for [tag, commits] in reverse_array(commits_per_tag)
     continue if commits.length is 0
+
     section = {
       tag
       commits: {}
@@ -59,7 +60,8 @@ curate_sections = (tags_steps) -> (commits_groups) ->
     for commit in commits
       if commit.section?
         (section.commits[commit.section] ||= []).push commit
-        section.breaks.push commit if commit.breaking?
+
+      section.breaks.push commit if commit.breaking?
 
     sections.push section
 
@@ -83,8 +85,8 @@ print_section = (section) ->
 
   breaking_commits = section.breaks
   if breaking_commits.length
-    stream.write '## Breaking\n\n'
-    for commit in breakin_commits
+    stream.write '## Breaking Changes\n\n'
+    for commit in breaking_commits
       stream.write commit.breaking
 
   stream.write '\n'
