@@ -7,13 +7,6 @@ while args.length
 
   switch option
     # Commands
-    when '--grep'
-      grep = args.shift()
-      if grep is NONE
-        options.grep = null
-      else
-        options.grep = grep
-
     when '--start'
       options.start = args.shift()
     when '--end'

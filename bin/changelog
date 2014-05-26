@@ -22,7 +22,7 @@ HEAD = 'HEAD';
 
 NONE = 'none';
 
-GIT_LOG_CMD = 'git log %s -E --format=%s %s | cat';
+GIT_LOG_CMD = 'git log -E --format=%s %s | cat';
 
 GIT_LAST_TAG_CMD = 'git describe --tags --abbrev=0';
 
@@ -33,7 +33,6 @@ GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1';
 GIT_COMMIT_SEARCH = 'git name-rev --name-only ';
 
 options = {
-  grep: '^Add|^Fix|^Remove|^:bug:|Breaking',
   start: LAST_TAG,
   end: HEAD
 };
@@ -166,15 +165,14 @@ get_first_commit = function() {
   return deferred.promise;
 };
 
-read_git_log = function(grep, from, to) {
+read_git_log = function(from, to) {
   var cmd, deferred, range;
   if (to == null) {
     to = 'HEAD';
   }
   deferred = q.defer();
-  grep = grep != null ? "--grep=\"" + grep + "\"" : '';
   range = from != null ? "" + from + ".." + to : '';
-  cmd = util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', range);
+  cmd = util.format(GIT_LOG_CMD, '%H%n%s%n%b%n==END==', range);
   child.exec(cmd, function(code, stdout, stderr) {
     var commits;
     commits = [];
@@ -335,14 +333,6 @@ _ref = process.argv, node = _ref[0], binPath = _ref[1], args = 3 <= _ref.length 
 while (args.length) {
   option = args.shift();
   switch (option) {
-    case '--grep':
-      grep = args.shift();
-      if (grep === NONE) {
-        options.grep = null;
-      } else {
-        options.grep = grep;
-      }
-      break;
     case '--start':
       options.start = args.shift();
       break;

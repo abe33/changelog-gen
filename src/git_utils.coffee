@@ -56,20 +56,15 @@ get_first_commit = ->
 
   deferred.promise
 
-read_git_log = (grep, from, to='HEAD') ->
+read_git_log = (from, to='HEAD') ->
   deferred = q.defer()
-
-  grep = if grep?
-    "--grep=\"#{grep}\""
-  else
-    ''
 
   range = if from?
     "#{from}..#{to}"
   else
     ''
 
-  cmd = util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', range)
+  cmd = util.format(GIT_LOG_CMD, '%H%n%s%n%b%n==END==', range)
 
   child.exec cmd, (code, stdout, stderr) ->
     commits = []
