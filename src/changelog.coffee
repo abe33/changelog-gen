@@ -34,7 +34,7 @@ q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from
         to_tag = tags[i]
         tags_steps.push to_tag
 
-        read_commits.push read_git_log(options.grep, from_tag, to_tag)
+        read_commits.push read_git_log(from_tag, to_tag)
     else
       to_tag = tags[start_index]
 
