@@ -1,0 +1,10 @@
+sections: [
+  {
+    name: 'Bug Fix'
+    match: '^:bug:'
+  }
+  {
+    name: 'Performances'
+    match: '^:racehorse:'
+  }
+]

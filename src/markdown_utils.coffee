@@ -37,24 +37,6 @@ find_fixes = (line, msg) ->
 
   not match?
 
-parse_raw_commit = (raw) ->
-  return null unless raw?
-
-  lines = raw.split('\n')
-  msg = {}
-  msg.hash = lines.shift()
-  msg.subject = lines.shift()
-  msg.closes = []
-
-  lines = lines.filter (line) ->
-    find_fixes(line, msg)
-
-  match = raw.match(/BREAKING CHANGE:([\s\S]*)/)
-  msg.breaking = match[1] if match
-  msg.body = lines.join("\n")
-
-  msg
-
 curate_sections = (tags_steps) -> (commits_groups) ->
   commits_per_tag = []
   for commits,i in commits_groups
@@ -74,8 +56,7 @@ curate_sections = (tags_steps) -> (commits_groups) ->
     }
 
     for commit in commits
-      parsed_commit = parse_raw_commit(commit)
-      section.commits.push parsed_commit
+      section.commits.push commit
 
     sections.push section
 

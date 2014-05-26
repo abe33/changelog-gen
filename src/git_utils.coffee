@@ -10,6 +10,12 @@ find_rev_index_for_commit = (commit, tags) ->
 
   deferred.promise
 
+filter_commit = ({subject, breaking, closes}) ->
+  return false unless subject?
+  return true for {regexp} in CONFIG.sections when regexp.testSync(subject)
+  return true if breaking? or closes?.length > 0
+  false
+
 get_tag_of_commit = (sha, tags) ->
   cmd = GIT_COMMIT_SEARCH + sha
   deferred = q.defer()
@@ -56,6 +62,24 @@ get_first_commit = ->
 
   deferred.promise
 
+parse_raw_commit = (raw) ->
+  return null unless raw?
+
+  lines = raw.split('\n')
+  msg = {}
+  msg.hash = lines.shift()
+  msg.subject = lines.shift()
+  msg.closes = []
+
+  lines = lines.filter (line) ->
+    find_fixes(line, msg)
+
+  match = raw.match(/BREAKING CHANGE:([\s\S]*)/)
+  msg.breaking = match[1] if match
+  msg.body = lines.join("\n")
+
+  msg
+
 read_git_log = (from, to='HEAD') ->
   deferred = q.defer()
 
@@ -67,10 +91,11 @@ read_git_log = (from, to='HEAD') ->
   cmd = util.format(GIT_LOG_CMD, '%H%n%s%n%b%n==END==', range)
 
   child.exec cmd, (code, stdout, stderr) ->
-    commits = []
-    stdout.split('\n==END==\n').forEach (rawCommit) ->
-      commit = rawCommit.split('\n').filter((s) -> s.length).join('\n')
-      commits.push commit if commit
+    commits = stdout.split('\n==END==\n')
+    .map (rawCommit) ->
+      rawCommit.split('\n').filter((s) -> s.length).join('\n')
+    .map(parse_raw_commit)
+    .filter(filter_commit)
 
     deferred.resolve commits
 

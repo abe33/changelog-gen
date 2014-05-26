@@ -1,17 +1,4 @@
 
-
-[node, binPath, args...] = process.argv
-
-while args.length
-  option = args.shift()
-
-  switch option
-    # Commands
-    when '--start'
-      options.start = args.shift()
-    when '--end'
-      options.end = args.shift()
-
 first_commit = get_first_commit()
 
 get_start = if options.start is FIRST_COMMIT

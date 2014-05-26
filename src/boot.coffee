@@ -1,8 +1,11 @@
 q = require 'qq'
+fs = require 'fs'
 path = require 'path'
 child = require 'child_process'
 util = require 'util'
+CSON = require 'cson'
 natural_sort = require 'javascript-natural-sort'
+{OnigRegExp} = require 'oniguruma'
 
 LAST_TAG = 'last-tag'
 FIRST_COMMIT = 'TAIL'
@@ -15,9 +18,14 @@ GIT_TAGS_CMD = 'git tag'
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1'
 GIT_COMMIT_SEARCH = 'git name-rev --name-only '
 
+DEFAULT_CONFIG = path.resolve __dirname,  '..', 'config', 'default.cson'
+
 options =
   start: LAST_TAG
   end: HEAD
+
+first_to_exists = (files...) ->
+  return file for file in files when fs.existsSync(file)
 
 warn = ->
   console.log "WARNING:", util.format.apply(null, arguments)
@@ -55,3 +63,37 @@ EXTERNAL_LINK_ISSUE = "[#%s](#{GITHUB_URL}/%s/%s)"
 LINK_COMMIT = "[%s](#{COMMIT_URL}/%s)"
 
 stream = process.stdout
+
+[node, binPath, args...] = process.argv
+
+while args.length
+  option = args.shift()
+
+  switch option
+    # Commands
+    when '--config'
+      options.config = args.shift()
+    when '--start'
+      options.start = args.shift()
+    when '--end'
+      options.end = args.shift()
+
+config_file_paths = [
+  DEFAULT_CONFIG
+]
+
+if options.config?
+  config_file_paths.push options.config
+else
+  config_file_paths.push path.resolve('.', 'changelog.json')
+  config_file_paths.push path.resolve('.', 'changelog.cson')
+
+config_file = first_to_exists(config_file_paths...)
+
+CONFIG = if /\.cson$/.test config_file
+  CSON.parseFileSync(config_file)
+else
+  require(config_file)
+
+for section,i in CONFIG.sections
+  section.regexp = new OnigRegExp(section.match)
