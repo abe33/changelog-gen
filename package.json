@@ -28,7 +28,7 @@
     "javascript-natural-sort": "~0.7.1"
   },
   "devDependencies": {
-    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-coffee": "0.x",
     "grunt-cli": "~0.1.8",
     "grunt": "~0.4.1",
     "grunt-contrib-watch": "~0.5.3",
