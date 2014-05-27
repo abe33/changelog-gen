@@ -62,3 +62,13 @@ Each `sections` entry must have at least a `name` and `match` attribute. The `na
 Optionally the following section attributes are available:
 - `replace` - A string use as replacement for the commit subject. The capture groups from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.
 - `include_body` - A boolean value that defines if the commits body are included in the section output or not.
+- `grouping_capture` - An integer corresponding to the capture group to use to group commits together as done by the original Angular changelog script. You can now write sections such as:
+  ```coffee
+  {
+    name: 'Features'
+    match: '^feat\\(([^\\)]+)\\):\\s(.*)$'
+    replace: '\\2'
+    grouping_capture: 1
+  }
+  ```
+  This setup will mimic the output of the Angular changelog script by grouping the commits prefixed with `feat({component})` into a `{component}` list. The `replace` option is used here to only display the remaining content of the commit subject in the list.
