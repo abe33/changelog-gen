@@ -9,6 +9,9 @@ link_to_issue = ([repo, issue]) ->
   else
     util.format LINK_ISSUE, issue, issue
 
+indent = (s) ->
+  '  ' + s.split('\n').join('\n  ')
+
 link_to_commit = (hash) ->
   util.format LINK_COMMIT, hash.substr(0, 8), hash
 
@@ -67,16 +70,22 @@ curate_sections = (tags_steps) -> (commits_groups) ->
 
   sections
 
+get_section_config = (name) ->
+  return section for section in CONFIG.sections when section.name is name
+  null
+
 print_section = (section) ->
   stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
 
   for section_name, commits of section.commits
+    section_config = get_section_config(section_name)
     stream.write "\n## #{section_name}\n\n"
+
     for commit in commits
       closes = commit.closes.map(link_to_issue).join(', ')
       closes = ", #{closes}" if closes.length > 0
-      commit_body = if commit.body.length > 0
-        "<br>#{commit.body}"
+      commit_body = if section_config.include_body and commit.body.length > 0
+        indent("<br>#{commit.body}")
       else
         ''
 
