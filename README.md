@@ -34,7 +34,7 @@ The default configuration being:
 ```coffee
 sections: [
   {
-    name: 'Bug Fix'
+    name: 'Bug Fixes'
     match: '^:bug:'
   }
   {
