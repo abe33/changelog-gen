@@ -162,7 +162,7 @@ find_rev_index_for_commit = function(commit, tags) {
 };
 
 filter_commit = function(commit) {
-  var breaking, closes, name, regexp, subject, _j, _len1, _ref2, _ref3;
+  var breaking, closes, match, name, regexp, subject, _j, _len1, _ref2;
   if (commit == null) {
     return false;
   }
@@ -172,9 +172,16 @@ filter_commit = function(commit) {
   }
   _ref2 = CONFIG.sections;
   for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-    _ref3 = _ref2[_j], regexp = _ref3.regexp, name = _ref3.name;
-    if (regexp.testSync(subject)) {
+    section = _ref2[_j];
+    regexp = section.regexp, name = section.name;
+    match = regexp.searchSync(subject);
+    if (match != null) {
       commit.section = name;
+      if (section.replace != null) {
+        commit.subject = section.replace.replace(/\\(\d)/g, function(m, i) {
+          return match[i].match;
+        });
+      }
       return true;
     }
   }

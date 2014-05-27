@@ -1,10 +1,12 @@
 sections: [
   {
-    name: 'Bug Fixes'
-    match: '^:bug:'
+    name: ':bug: Bug Fixes'
+    match: '^:bug:\\s+(.*)$'
+    replace: '\\1'
   }
   {
-    name: 'Performances'
-    match: '^:racehorse:'
+    name: ':racehorse: Performances'
+    match: '^:racehorse:\\s+(.*)$'
+    replace: '\\1'
   }
 ]

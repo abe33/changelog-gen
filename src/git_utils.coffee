@@ -15,9 +15,14 @@ filter_commit = (commit) ->
   {subject, breaking, closes} = commit
   return false unless subject?
 
-  for {regexp, name} in CONFIG.sections
-    if regexp.testSync(subject)
+  for section in CONFIG.sections
+    {regexp, name} = section
+    match = regexp.searchSync(subject)
+    if match?
       commit.section = name
+      if section.replace?
+        commit.subject = section.replace.replace /\\(\d)/g, (m,i) ->
+          match[i].match
       return true
 
   return true if breaking?

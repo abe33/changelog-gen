@@ -34,12 +34,14 @@ The default configuration being:
 ```coffee
 sections: [
   {
-    name: 'Bug Fixes'
-    match: '^:bug:'
+    name: ':bug: Bug Fixes'
+    match: '^:bug:\\s+(.*)$'
+    replace: '\\1'
   }
   {
-    name: 'Performances'
-    match: '^:racehorse:'
+    name: ':racehorse: Performances'
+    match: '^:racehorse:\\s+(.*)$'
+    replace: '\\1'
   }
 ]
 ```
@@ -49,3 +51,8 @@ The configuration file can be either a JSON or a CSON file located in the same d
 You can specify another path to the configuration file using the `--config` option.
 
 `changelog --config my_config.cson`
+
+Each `sections` entry must have at least a `name` and `match` attribute. The `name` attribute is the content of the section's title, the `regexp` attribute being a string containing an [oniguruma regular expression](http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt).
+
+Optionally the following section attributes are available:
+- `replace`: A string use as replacement for the commit subject. The capture group from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.
