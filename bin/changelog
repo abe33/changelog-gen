@@ -119,7 +119,7 @@ if (COMMIT_URL == null) {
   COMMIT_URL = ISSUE_URL.replace('issues', 'commit');
 }
 
-HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n\n";
+HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n";
 
 LINK_ISSUE = "[#%s](" + ISSUE_URL + "/%s)";
 
@@ -387,7 +387,7 @@ print_section = function(section) {
   _ref2 = section.commits;
   for (section_name in _ref2) {
     commits = _ref2[section_name];
-    stream.write("## " + section_name + "\n\n");
+    stream.write("\n## " + section_name + "\n\n");
     for (_j = 0, _len1 = commits.length; _j < _len1; _j++) {
       commit = commits[_j];
       closes = commit.closes.map(link_to_issue).join(', ');
@@ -401,7 +401,7 @@ print_section = function(section) {
   }
   breaking_commits = section.breaks;
   if (breaking_commits.length) {
-    stream.write('## Breaking Changes\n\n');
+    stream.write('\n## Breaking Changes\n\n');
     for (_k = 0, _len2 = breaking_commits.length; _k < _len2; _k++) {
       commit = breaking_commits[_k];
       stream.write("- due to " + (link_to_commit(commit.hash)) + ", " + commit.breaking);

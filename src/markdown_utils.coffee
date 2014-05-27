@@ -71,7 +71,7 @@ print_section = (section) ->
   stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
 
   for section_name, commits of section.commits
-    stream.write "## #{section_name}\n\n"
+    stream.write "\n## #{section_name}\n\n"
     for commit in commits
       closes = commit.closes.map(link_to_issue).join(', ')
       closes = ", #{closes}" if closes.length > 0
@@ -85,7 +85,7 @@ print_section = (section) ->
 
   breaking_commits = section.breaks
   if breaking_commits.length
-    stream.write '## Breaking Changes\n\n'
+    stream.write '\n## Breaking Changes\n\n'
     for commit in breaking_commits
       stream.write "- due to #{link_to_commit(commit.hash)}, #{commit.breaking}"
 
