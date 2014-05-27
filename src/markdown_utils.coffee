@@ -87,7 +87,7 @@ print_section = (section) ->
   if breaking_commits.length
     stream.write '## Breaking Changes\n\n'
     for commit in breaking_commits
-      stream.write commit.breaking
+      stream.write "- due to #{link_to_commit(commit.hash)}, #{commit.breaking}"
 
   stream.write '\n'
 

@@ -397,7 +397,7 @@ print_section = function(section) {
     stream.write('## Breaking Changes\n\n');
     for (_k = 0, _len2 = breaking_commits.length; _k < _len2; _k++) {
       commit = breaking_commits[_k];
-      stream.write(commit.breaking);
+      stream.write("- due to " + (link_to_commit(commit.hash)) + ", " + commit.breaking);
     }
   }
   return stream.write('\n');
