@@ -44,6 +44,8 @@ sections: [
 ]
 ```
 
-Configuration fies can be either a JSON or a CSON file located in the same directory as your `package.json` file and named `changelog.json` or `changelog.cson`.
+The configuration file can be either a JSON or a CSON file located in the same directory as your `package.json` file and named `changelog.json` or `changelog.cson`.
 
 You can specify another path to the configuration file using the `--config` option.
+
+`changelog --config my_config.cson`
