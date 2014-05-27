@@ -34,6 +34,10 @@ The default configuration being:
 ```coffee
 sections: [
   {
+    name: ':sparkles: Features'
+    match: '^(Add|Implement)'
+  }
+  {
     name: ':bug: Bug Fixes'
     match: '^:bug:\\s+(.*)$'
     replace: '\\1'
