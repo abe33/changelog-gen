@@ -3,6 +3,8 @@ reverse_array = (array) ->
   a.unshift o for o in array
   a
 
+lower_first_char = (s) -> s.replace /^\s*[^\s]/, (m) -> m.toLowerCase()
+
 link_to_issue = ([repo, issue]) ->
   if repo?
     util.format EXTERNAL_LINK_ISSUE, issue, repo, issue
@@ -96,7 +98,7 @@ print_section = (section) ->
   if breaking_commits.length
     stream.write '\n## Breaking Changes\n\n'
     for commit in breaking_commits
-      stream.write "- due to #{link_to_commit(commit.hash)}, #{commit.breaking}"
+      stream.write "- due to #{link_to_commit(commit.hash)},#{lower_first_char commit.breaking}"
 
   stream.write '\n'
 

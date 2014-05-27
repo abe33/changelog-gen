@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_sections, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
+var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_sections, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, lower_first_char, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
   __slice = [].slice,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -307,6 +307,12 @@ reverse_array = function(array) {
   return a;
 };
 
+lower_first_char = function(s) {
+  return s.replace(/^\s*[^\s]/, function(m) {
+    return m.toLowerCase();
+  });
+};
+
 link_to_issue = function(_arg) {
   var issue, repo;
   repo = _arg[0], issue = _arg[1];
@@ -421,7 +427,7 @@ print_section = function(section) {
     stream.write('\n## Breaking Changes\n\n');
     for (_k = 0, _len2 = breaking_commits.length; _k < _len2; _k++) {
       commit = breaking_commits[_k];
-      stream.write("- due to " + (link_to_commit(commit.hash)) + ", " + commit.breaking);
+      stream.write("- due to " + (link_to_commit(commit.hash)) + "," + (lower_first_char(commit.breaking)));
     }
   }
   return stream.write('\n');
