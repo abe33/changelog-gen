@@ -36,6 +36,7 @@ sections: [
   {
     name: ':sparkles: Features'
     match: '^(Add|Implement)'
+    include_body: true
   }
   {
     name: ':bug: Bug Fixes'
@@ -60,3 +61,4 @@ Each `sections` entry must have at least a `name` and `match` attribute. The `na
 
 Optionally the following section attributes are available:
 - `replace`: A string use as replacement for the commit subject. The capture group from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.
+- `include_body` - A boolean value that defines if the commits body are included in the section output or not.
