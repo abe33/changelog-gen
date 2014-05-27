@@ -23,6 +23,10 @@ filter_commit = (commit) ->
       if section.replace?
         commit.subject = section.replace.replace /\\(\d)/g, (m,i) ->
           match[i].match
+
+      if section.grouping_capture?
+        commit.group = match[section.grouping_capture].match
+
       return true
 
   return true if breaking?

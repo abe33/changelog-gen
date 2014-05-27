@@ -12,7 +12,14 @@ link_to_issue = ([repo, issue]) ->
     util.format LINK_ISSUE, issue, issue
 
 indent = (s) ->
-  '  ' + s.split('\n').join('\n  ')
+  lines = s.split('\n')
+  last_line = lines.pop()
+  output = '  ' + lines.join('\n  ')
+  output += if last_line.length > 0
+    '\n  ' + last_line
+  else
+    '\n'
+  output
 
 link_to_commit = (hash) ->
   util.format LINK_COMMIT, hash.substr(0, 8), hash
@@ -76,6 +83,22 @@ get_section_config = (name) ->
   return section for section in CONFIG.sections when section.name is name
   null
 
+get_commit_body = (commit, section_config) ->
+  if section_config.include_body and commit.body.length > 0
+    indent("<br>#{commit.body}")
+  else
+    ''
+
+get_commit_closes = (commit) ->
+  closes = commit.closes.map(link_to_issue).join(', ')
+  ", #{closes}" if closes.length > 0
+
+get_commit_output = (commit, section_config) ->
+  closes = get_commit_closes(commit)
+  commit_body = get_commit_body(commit, section_config)
+
+  "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
+
 print_section = (section) ->
   stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
 
@@ -83,16 +106,22 @@ print_section = (section) ->
     section_config = get_section_config(section_name)
     stream.write "\n## #{section_name}\n\n"
 
-    for commit in commits
-      closes = commit.closes.map(link_to_issue).join(', ')
-      closes = ", #{closes}" if closes.length > 0
-      commit_body = if section_config.include_body and commit.body.length > 0
-        indent("<br>#{commit.body}")
-      else
-        ''
+    non_grouped_commits = commits.filter (commit) -> not commit.group?
+    grouped_commits = {}
+    commits.filter((commit) -> commit.group?).forEach (commit) ->
+      grouped_commits[commit.group] ||= []
+      grouped_commits[commit.group].push commit
 
-      l = "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
-      stream.write l
+    for group, commits of grouped_commits
+      stream.write "- *#{group}*:\n"
+      for commit in commits
+        commit_output = get_commit_output(commit, section_config)
+        stream.write indent(commit_output)
+
+    for commit in non_grouped_commits
+      commit_output = get_commit_output(commit, section_config)
+      stream.write commit_output
+
 
   breaking_commits = section.breaks
   if breaking_commits.length
