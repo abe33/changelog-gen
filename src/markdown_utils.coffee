@@ -113,7 +113,7 @@ print_section = (section) ->
       grouped_commits[commit.group].push commit
 
     for group, commits of grouped_commits
-      stream.write "- *#{group}*:\n"
+      stream.write "- **#{group}**:\n"
       for commit in commits
         commit_output = get_commit_output(commit, section_config)
         stream.write indent(commit_output)
@@ -121,7 +121,6 @@ print_section = (section) ->
     for commit in non_grouped_commits
       commit_output = get_commit_output(commit, section_config)
       stream.write commit_output
-
 
   breaking_commits = section.breaks
   if breaking_commits.length

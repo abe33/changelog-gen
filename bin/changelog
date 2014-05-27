@@ -455,7 +455,7 @@ print_section = function(section) {
     });
     for (group in grouped_commits) {
       commits = grouped_commits[group];
-      stream.write("- *" + group + "*:\n");
+      stream.write("- **" + group + "**:\n");
       for (_j = 0, _len1 = commits.length; _j < _len1; _j++) {
         commit = commits[_j];
         commit_output = get_commit_output(commit, section_config);
