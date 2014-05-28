@@ -47,15 +47,15 @@ while args.length
 
   switch option
     # Commands
-    when '--repo'
+    when '--repo', '-r'
       options.repo = args.shift()
-    when '--config'
+    when '--config', '-c'
       options.config = args.shift()
-    when '--start'
+    when '--start', '-s'
       options.start = args.shift()
-    when '--end'
+    when '--end', '-e'
       options.end = args.shift()
-    when '--angular'
+    when '--angular', '-a'
       options.config = path.resolve __dirname,  '..', 'config', 'angular.cson'
 
 package_json_path = path.resolve('.', 'package.json')

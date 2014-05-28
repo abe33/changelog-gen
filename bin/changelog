@@ -79,18 +79,23 @@ while (args.length) {
   option = args.shift();
   switch (option) {
     case '--repo':
+    case '-r':
       options.repo = args.shift();
       break;
     case '--config':
+    case '-c':
       options.config = args.shift();
       break;
     case '--start':
+    case '-s':
       options.start = args.shift();
       break;
     case '--end':
+    case '-e':
       options.end = args.shift();
       break;
     case '--angular':
+    case '-a':
       options.config = path.resolve(__dirname, '..', 'config', 'angular.cson');
   }
 }
