@@ -97,6 +97,9 @@ while (args.length) {
     case '--angular':
     case '-a':
       options.config = path.resolve(__dirname, '..', 'config', 'angular.cson');
+      break;
+    default:
+      options.tag = option;
   }
 }
 
@@ -445,11 +448,12 @@ get_commit_output = function(commit, section_config) {
 };
 
 print_version = function(version) {
-  var breaking_commits, commit, commit_output, commits, group, grouped_commits, non_grouped_commits, section_config, section_name, _j, _k, _l, _len1, _len2, _len3, _len4, _m, _ref2;
-  stream.write(util.format(HEADER_TPL, version.tag, version.tag, current_date()));
-  _ref2 = CONFIG.sections;
-  for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-    section_config = _ref2[_j];
+  var breaking_commits, commit, commit_output, commits, group, grouped_commits, non_grouped_commits, section_config, section_name, tag, _j, _k, _l, _len1, _len2, _len3, _len4, _m, _ref2, _ref3;
+  tag = (_ref2 = version.tag) != null ? _ref2 : options.tag;
+  stream.write(util.format(HEADER_TPL, tag, tag, current_date()));
+  _ref3 = CONFIG.sections;
+  for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+    section_config = _ref3[_j];
     section_name = section_config.name;
     commits = version.commits[section_name];
     if (commits == null) {

@@ -57,6 +57,8 @@ while args.length
       options.end = args.shift()
     when '--angular', '-a'
       options.config = path.resolve __dirname,  '..', 'config', 'angular.cson'
+    else
+      options.tag = option
 
 package_json_path = path.resolve('.', 'package.json')
 PACKAGE_JSON = if fs.existsSync(package_json_path)

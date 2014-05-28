@@ -103,7 +103,8 @@ get_commit_output = (commit, section_config) ->
   "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
 
 print_version = (version) ->
-  stream.write util.format(HEADER_TPL, version.tag, version.tag, current_date())
+  tag = version.tag ? options.tag
+  stream.write util.format(HEADER_TPL, tag, tag, current_date())
   for section_config in CONFIG.sections
     section_name = section_config.name
     commits = version.commits[section_name]
