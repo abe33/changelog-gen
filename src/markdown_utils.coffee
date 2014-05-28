@@ -105,8 +105,11 @@ get_commit_output = (commit, section_config) ->
 print_section = (section) ->
   stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
 
-  for section_name, commits of section.commits
-    section_config = get_section_config(section_name)
+  for section_config in CONFIG.sections
+    section_name = section_config.name
+    commits = section.commits[section_name]
+    continue unless commits?
+
     stream.write "\n## #{section_name}\n\n"
 
     non_grouped_commits = commits.filter (commit) -> not commit.group?
