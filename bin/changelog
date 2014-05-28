@@ -89,6 +89,9 @@ while (args.length) {
       break;
     case '--end':
       options.end = args.shift();
+      break;
+    case '--angular':
+      options.config = path.resolve(__dirname, '..', 'config', 'angular.cson');
   }
 }
 
