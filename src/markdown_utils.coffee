@@ -91,7 +91,10 @@ get_commit_body = (commit, section_config) ->
 
 get_commit_closes = (commit) ->
   closes = commit.closes.map(link_to_issue).join(', ')
-  ", #{closes}" if closes.length > 0
+  if closes.length > 0
+    ", #{closes}"
+  else
+    ''
 
 get_commit_output = (commit, section_config) ->
   closes = get_commit_closes(commit)

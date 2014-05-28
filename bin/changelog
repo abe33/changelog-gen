@@ -427,6 +427,8 @@ get_commit_closes = function(commit) {
   closes = commit.closes.map(link_to_issue).join(', ');
   if (closes.length > 0) {
     return ", " + closes;
+  } else {
+    return '';
   }
 };
 
