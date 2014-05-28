@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_sections, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_commit_body, get_commit_closes, get_commit_output, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, lower_first_char, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_section, print_sections, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
+var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_versions, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_commit_body, get_commit_closes, get_commit_output, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, lower_first_char, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_version, print_versions, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
   __slice = [].slice,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -363,9 +363,9 @@ find_fixes = function(line, msg) {
   return match == null;
 };
 
-curate_sections = function(tags_steps) {
+curate_versions = function(tags_steps) {
   return function(commits_groups) {
-    var commit, commits, commits_per_tag, current_tag, sections, tag, _base, _j, _k, _l, _len1, _len2, _len3, _name, _ref2, _ref3;
+    var commit, commits, commits_per_tag, current_tag, tag, version, versions, _base, _j, _k, _l, _len1, _len2, _len3, _name, _ref2, _ref3;
     commits_per_tag = [];
     for (i = _j = 0, _len1 = commits_groups.length; _j < _len1; i = ++_j) {
       commits = commits_groups[i];
@@ -375,14 +375,14 @@ curate_sections = function(tags_steps) {
       }
       commits_per_tag.push([current_tag, commits]);
     }
-    sections = [];
+    versions = [];
     _ref2 = reverse_array(commits_per_tag);
     for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
       _ref3 = _ref2[_k], tag = _ref3[0], commits = _ref3[1];
       if (commits.length === 0) {
         continue;
       }
-      section = {
+      version = {
         tag: tag,
         commits: {},
         breaks: []
@@ -390,15 +390,15 @@ curate_sections = function(tags_steps) {
       for (_l = 0, _len3 = commits.length; _l < _len3; _l++) {
         commit = commits[_l];
         if (commit.section != null) {
-          ((_base = section.commits)[_name = commit.section] || (_base[_name] = [])).push(commit);
+          ((_base = version.commits)[_name = commit.section] || (_base[_name] = [])).push(commit);
         }
         if (commit.breaking != null) {
-          section.breaks.push(commit);
+          version.breaks.push(commit);
         }
       }
-      sections.push(section);
+      versions.push(version);
     }
-    return sections;
+    return versions;
   };
 };
 
@@ -439,14 +439,14 @@ get_commit_output = function(commit, section_config) {
   return "- " + commit.subject + " (" + (link_to_commit(commit.hash)) + closes + ")" + commit_body + "\n";
 };
 
-print_section = function(section) {
+print_version = function(version) {
   var breaking_commits, commit, commit_output, commits, group, grouped_commits, non_grouped_commits, section_config, section_name, _j, _k, _l, _len1, _len2, _len3, _len4, _m, _ref2;
-  stream.write(util.format(HEADER_TPL, section.tag, section.tag, current_date()));
+  stream.write(util.format(HEADER_TPL, version.tag, version.tag, current_date()));
   _ref2 = CONFIG.sections;
   for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
     section_config = _ref2[_j];
     section_name = section_config.name;
-    commits = section.commits[section_name];
+    commits = version.commits[section_name];
     if (commits == null) {
       continue;
     }
@@ -477,7 +477,7 @@ print_section = function(section) {
       stream.write(commit_output);
     }
   }
-  breaking_commits = section.breaks;
+  breaking_commits = version.breaks;
   if (breaking_commits.length) {
     stream.write('\n## Breaking Changes\n\n');
     for (_m = 0, _len4 = breaking_commits.length; _m < _len4; _m++) {
@@ -488,12 +488,12 @@ print_section = function(section) {
   return stream.write('\n');
 };
 
-print_sections = function(sections) {
-  var _j, _len1, _results;
+print_versions = function(versions) {
+  var version, _j, _len1, _results;
   _results = [];
-  for (_j = 0, _len1 = sections.length; _j < _len1; _j++) {
-    section = sections[_j];
-    _results.push(print_section(section));
+  for (_j = 0, _len1 = versions.length; _j < _len1; _j++) {
+    version = versions[_j];
+    _results.push(print_version(version));
   }
   return _results;
 };
@@ -532,7 +532,7 @@ q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
     if (to_tag !== to) {
       read_commits.push(read_git_log(options.grep, to_tag, to));
     }
-    return q.all(read_commits).then(curate_sections(tags_steps)).then(print_sections).fail(function(reason) {
+    return q.all(read_commits).then(curate_versions(tags_steps)).then(print_versions).fail(function(reason) {
       return console.log(reason);
     });
   });

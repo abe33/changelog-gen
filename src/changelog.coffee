@@ -42,7 +42,7 @@ q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from
       read_commits.push read_git_log(options.grep, to_tag, to)
 
     q.all(read_commits)
-    .then(curate_sections(tags_steps))
-    .then(print_sections)
+    .then(curate_versions(tags_steps))
+    .then(print_versions)
     .fail (reason) ->
       console.log reason

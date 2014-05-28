@@ -49,7 +49,7 @@ find_fixes = (line, msg) ->
 
   not match?
 
-curate_sections = (tags_steps) -> (commits_groups) ->
+curate_versions = (tags_steps) -> (commits_groups) ->
   commits_per_tag = []
   for commits,i in commits_groups
     current_tag = tags_steps[i]
@@ -58,12 +58,12 @@ curate_sections = (tags_steps) -> (commits_groups) ->
     current_tag = undefined if current_tag is HEAD
     commits_per_tag.push [current_tag, commits]
 
-  sections = []
+  versions = []
 
   for [tag, commits] in reverse_array(commits_per_tag)
     continue if commits.length is 0
 
-    section = {
+    version = {
       tag
       commits: {}
       breaks: []
@@ -71,13 +71,13 @@ curate_sections = (tags_steps) -> (commits_groups) ->
 
     for commit in commits
       if commit.section?
-        (section.commits[commit.section] ||= []).push commit
+        (version.commits[commit.section] ||= []).push commit
 
-      section.breaks.push commit if commit.breaking?
+      version.breaks.push commit if commit.breaking?
 
-    sections.push section
+    versions.push version
 
-  sections
+  versions
 
 get_section_config = (name) ->
   return section for section in CONFIG.sections when section.name is name
@@ -102,12 +102,11 @@ get_commit_output = (commit, section_config) ->
 
   "- #{commit.subject} (#{link_to_commit(commit.hash)}#{closes})#{commit_body}\n"
 
-print_section = (section) ->
-  stream.write util.format(HEADER_TPL, section.tag, section.tag, current_date())
-
+print_version = (version) ->
+  stream.write util.format(HEADER_TPL, version.tag, version.tag, current_date())
   for section_config in CONFIG.sections
     section_name = section_config.name
-    commits = section.commits[section_name]
+    commits = version.commits[section_name]
     continue unless commits?
 
     stream.write "\n## #{section_name}\n\n"
@@ -128,7 +127,7 @@ print_section = (section) ->
       commit_output = get_commit_output(commit, section_config)
       stream.write commit_output
 
-  breaking_commits = section.breaks
+  breaking_commits = version.breaks
   if breaking_commits.length
     stream.write '\n## Breaking Changes\n\n'
     for commit in breaking_commits
@@ -137,5 +136,5 @@ print_section = (section) ->
   stream.write '\n'
 
 
-print_sections = (sections) ->
-  print_section(section) for section in sections
+print_versions = (versions) ->
+  print_version(version) for version in versions
