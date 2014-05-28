@@ -91,10 +91,10 @@ config_file_paths = [
 ]
 
 if options.config?
-  config_file_paths.push options.config
+  config_file_paths.unshift options.config
 else
-  config_file_paths.push path.resolve('.', 'changelog.json')
-  config_file_paths.push path.resolve('.', 'changelog.cson')
+  config_file_paths.unshift path.resolve('.', 'changelog.cson')
+  config_file_paths.unshift path.resolve('.', 'changelog.json')
 
 config_file = first_to_exists(config_file_paths...)
 
