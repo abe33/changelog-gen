@@ -1,3 +1,10 @@
+<a name="v0.2.1"></a>
+# v0.2.1 (2014-05-29)
+
+## :bug: Bug Fixes
+
+- Fix closing external repo hook not recognized ([97f4e284](https://github.com/abe33/changelog-gen/commit/97f4e28452cb0f013a3c4676a921eb2c148844ab))
+
 <a name="v0.2.0"></a>
 # v0.2.0 (2014-05-28)
 
