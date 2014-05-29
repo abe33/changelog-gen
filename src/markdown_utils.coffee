@@ -7,7 +7,7 @@ lower_first_char = (s) -> s.replace /^\s*[^\s]/, (m) -> m.toLowerCase()
 
 link_to_issue = ([repo, issue]) ->
   if repo?
-    util.format EXTERNAL_LINK_ISSUE, issue, repo, issue
+    util.format EXTERNAL_LINK_ISSUE, repo, issue, repo, issue
   else
     util.format LINK_ISSUE, issue, issue
 
@@ -31,7 +31,7 @@ current_date = ->
   util.format "%d-%s-%s", now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate())
 
 find_fixes = (line, msg) ->
-  issue_re = "([^\\s/]+/[^\\s#])?#(\\d+)"
+  issue_re = "([^\\s/]+/[^\\s#]+)?#(\\d+)"
   re = ///
   (?:
   close|closes|closed|
@@ -43,6 +43,7 @@ find_fixes = (line, msg) ->
   ///i
 
   match = re.exec(line)
+
   if match?
     [_, repo, issue] = match
     msg.closes.push [repo, issue]

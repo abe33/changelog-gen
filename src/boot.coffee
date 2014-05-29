@@ -85,7 +85,7 @@ unless COMMIT_URL?
 
 HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n"
 LINK_ISSUE = "[#%s](#{ISSUE_URL}/%s)"
-EXTERNAL_LINK_ISSUE = "[#%s](#{GITHUB_URL}/%s/%s)"
+EXTERNAL_LINK_ISSUE = "[%s#%s](#{GITHUB_URL}%s/issues/%s)"
 LINK_COMMIT = "[%s](#{COMMIT_URL}/%s)"
 
 stream = process.stdout

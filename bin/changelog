@@ -134,7 +134,7 @@ HEADER_TPL = "\n<a name=\"%s\"></a>\n# %s (%s)\n";
 
 LINK_ISSUE = "[#%s](" + ISSUE_URL + "/%s)";
 
-EXTERNAL_LINK_ISSUE = "[#%s](" + GITHUB_URL + "/%s/%s)";
+EXTERNAL_LINK_ISSUE = "[%s#%s](" + GITHUB_URL + "%s/issues/%s)";
 
 LINK_COMMIT = "[%s](" + COMMIT_URL + "/%s)";
 
@@ -331,7 +331,7 @@ link_to_issue = function(_arg) {
   var issue, repo;
   repo = _arg[0], issue = _arg[1];
   if (repo != null) {
-    return util.format(EXTERNAL_LINK_ISSUE, issue, repo, issue);
+    return util.format(EXTERNAL_LINK_ISSUE, repo, issue, repo, issue);
   } else {
     return util.format(LINK_ISSUE, issue, issue);
   }
@@ -361,7 +361,7 @@ current_date = function() {
 
 find_fixes = function(line, msg) {
   var issue, issue_re, match, re, repo, _;
-  issue_re = "([^\\s/]+/[^\\s#])?#(\\d+)";
+  issue_re = "([^\\s/]+/[^\\s#]+)?#(\\d+)";
   re = RegExp("(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\\s" + issue_re, "i");
   match = re.exec(line);
   if (match != null) {
