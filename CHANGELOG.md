@@ -1,3 +1,11 @@
+<a name="v0.3.0"></a>
+# v0.3.0 (2014-05-30)
+
+## :sparkles: Features
+
+- Change default config to better handle fix commits ([54c0f26](https://github.com/abe33/changelog-gen/commit/54c0f2621ff95b67a2bf6964b565119d956a3272))
+  <br>It will now match both commits starting with `:bug:` and commits starting with `Fix`.
+
 <a name="v0.2.1"></a>
 # v0.2.1 (2014-05-29)
 
