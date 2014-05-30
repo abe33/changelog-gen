@@ -10,11 +10,11 @@ A command line tool to generates changelog files based on simple conventions in 
 
 In a git project directory that contains a `package.json` file:
 
-`changelog` - Will generates a markedown changelog from the latest available tag or from the first commit if no tags are available.
+`changelog` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available.
 
 In a git project  directory that doesn't contain a `package.json` file:
 
-`changelog --repo {REPO_URL}` - Will generates a markedown changelog from the latest available tag or from the first commit if no tags are available. All the generated links to issues and commits will be constructed using the passed-in `{REPO_URL}`.
+`changelog --repo {REPO_URL}` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available. All the generated links to issues and commits will be constructed using the passed-in `{REPO_URL}`.
 
 ### Specifying The Commits Range
 
