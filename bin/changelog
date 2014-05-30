@@ -153,6 +153,10 @@ config_file = first_to_exists.apply(null, config_file_paths);
 
 CONFIG = /\.cson$/.test(config_file) ? CSON.parseFileSync(config_file) : require(config_file);
 
+if (CONFIG.sections == null) {
+  error("Can't locate the `sections` field in " + config_file);
+}
+
 _ref1 = CONFIG.sections;
 for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
   section = _ref1[i];

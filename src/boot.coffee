@@ -107,5 +107,7 @@ CONFIG = if /\.cson$/.test config_file
 else
   require(config_file)
 
+error("Can't locate the `sections` field in #{config_file}") unless CONFIG.sections?
+
 for section,i in CONFIG.sections
   section.regexp = new OnigRegExp(section.match)
