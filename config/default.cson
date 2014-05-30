@@ -6,8 +6,8 @@ sections: [
   }
   {
     name: ':bug: Bug Fixes'
-    match: '^:bug:\\s+(.*)$'
-    replace: '\\1'
+    match: '^(:bug:\\s+|(Fix))(.*)$'
+    replace: '\\2\\3'
   }
   {
     name: ':racehorse: Performances'
