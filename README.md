@@ -27,9 +27,17 @@ You can specify the commit range using the `--start` and `--end` options such as
 
 ## Configuration
 
-The utility works by parsing the commits summaries and test them against the regular expressions defined in the configuration file.
+The utility works by parsing the commits summaries and testing them against the regular expressions defined in a configuration file.
 
-The default configuration being:
+The configuration file can be either a JSON or a CSON file located in the same directory as your `package.json` file and named `changelog.json` or `changelog.cson`.
+
+You can specify another path to the configuration file using the `--config` option.
+
+`changelog --config my_config.cson`
+
+The configuration file **MUST** contains a `sections` entry with an array of the various sections to appear in a version changelog. A section is a group of commits in the output changelog.
+
+For instance, the default configuration is:
 
 ```coffee
 sections: [
@@ -40,8 +48,8 @@ sections: [
   }
   {
     name: ':bug: Bug Fixes'
-    match: '^:bug:\\s+(.*)$'
-    replace: '\\1'
+    match: '^(:bug:\\s+|(Fix))(.*)$'
+    replace: '\\2\\3'
   }
   {
     name: ':racehorse: Performances'
@@ -51,24 +59,22 @@ sections: [
 ]
 ```
 
-The configuration file can be either a JSON or a CSON file located in the same directory as your `package.json` file and named `changelog.json` or `changelog.cson`.
+Each `sections` entry must have at least a `name` and `match` attribute. The `name` attribute is the content of the section's title in the output, the `regexp` attribute being a string containing an [oniguruma regular expression](http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt) that will be used against the commits summary.
 
-You can specify another path to the configuration file using the `--config` option.
-
-`changelog --config my_config.cson`
-
-Each `sections` entry must have at least a `name` and `match` attribute. The `name` attribute is the content of the section's title, the `regexp` attribute being a string containing an [oniguruma regular expression](http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt).
-
-Optionally the following section attributes are available:
-- `replace` - A string use as replacement for the commit subject. The capture groups from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.
+Optionally the following additional section attributes are available:
+- `replace` - A string to use as replacement for the commit summary. The capture groups from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.
 - `include_body` - A boolean value that defines if the commits body are included in the section output or not.
 - `grouping_capture` - An integer corresponding to the capture group to use to group commits together as done by the original Angular changelog script. You can now write sections such as:
   ```coffee
   {
     name: 'Features'
-    match: '^feat\\(([^\\)]+)\\):\\s(.*)$'
+    match: '^feat\\((.*)\\):\\s(.*)$'
     replace: '\\2'
     grouping_capture: 1
   }
   ```
   This setup will mimic the output of the Angular changelog script by grouping the commits prefixed with `feat({component})` into a `{component}` list. The `replace` option is used here to only display the remaining content of the commit subject in the list.
+
+### Angular Convention
+
+A default configuration matching the convention of Angular commits messages is provided out of the box. You just have to pass the `--angular` option to the CLI to activate it.
