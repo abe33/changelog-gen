@@ -18,10 +18,19 @@ else
   d.promise
 
 all_tags = get_all_tags()
-q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from, to]) ->
+all_tags_date = all_tags.then (tags) ->
+  q.all(tags.map (tag)-> get_date_of_tag(tag))
+  .then (tags_date) ->
+    o = {}
+    for date,i in tags_date
+      o[tags[i]] = date
+    o
+
+q.all([first_commit, all_tags, get_start, get_end, all_tags_date]).then ([first_sha, tags, from, to, tags_date]) ->
   tags = tags.sort(natural_sort)
   tags.unshift first_sha
   tags.push HEAD
+
   get_start_index = find_rev_index_for_commit(from, tags)
   get_end_index = find_rev_index_for_commit(to, tags)
 
@@ -43,6 +52,7 @@ q.all([first_commit, all_tags, get_start, get_end]).then ([first_sha, tags, from
 
     q.all(read_commits)
     .then(curate_versions(tags_steps))
-    .then(print_versions)
+    .then (versions) ->
+      print_versions(versions, tags_date)
     .fail (reason) ->
       console.log reason

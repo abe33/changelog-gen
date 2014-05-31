@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 ;
-var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, args, binPath, child, config_file, config_file_paths, curate_versions, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_commit_body, get_commit_closes, get_commit_output, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, lower_first_char, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_version, print_versions, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
+var COMMIT_URL, CONFIG, CSON, DEFAULT_CONFIG, EXTERNAL_LINK_ISSUE, FIRST_COMMIT, GITHUB_URL, GIT_COMMIT_DATE, GIT_COMMIT_SEARCH, GIT_FIRST_COMMIT, GIT_LAST_TAG_CMD, GIT_LOG_CMD, GIT_TAGS_CMD, GIT_TAG_COMMIT, HEAD, HEADER_TPL, ISSUE_URL, LAST_TAG, LINK_COMMIT, LINK_ISSUE, NONE, OnigRegExp, PACKAGE_JSON, REPO_URL, all_tags, all_tags_date, args, binPath, child, config_file, config_file_paths, curate_versions, current_date, d, error, filter_commit, find_fixes, find_rev_index_for_commit, first_commit, first_to_exists, fs, get_all_tags, get_commit_body, get_commit_closes, get_commit_of_tag, get_commit_output, get_date_of_commit, get_date_of_tag, get_end, get_first_commit, get_previous_tag, get_section_config, get_start, get_tag_of_commit, i, indent, link_to_commit, link_to_issue, lower_first_char, natural_sort, node, option, options, package_json_path, parse_raw_commit, path, print_version, print_versions, q, read_git_log, reverse_array, section, stream, string_or_url, util, warn, _i, _len, _ref, _ref1,
   __slice = [].slice,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -37,6 +37,10 @@ GIT_TAGS_CMD = 'git tag';
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1';
 
 GIT_COMMIT_SEARCH = 'git name-rev --name-only ';
+
+GIT_TAG_COMMIT = 'git rev-parse %s';
+
+GIT_COMMIT_DATE = 'git show -s --format=%ci %s';
 
 DEFAULT_CONFIG = path.resolve(__dirname, '..', 'config', 'default.cson');
 
@@ -207,6 +211,40 @@ filter_commit = function(commit) {
     return true;
   }
   return false;
+};
+
+get_commit_of_tag = function(tag) {
+  var cmd, deferred;
+  deferred = q.defer();
+  cmd = util.format(GIT_TAG_COMMIT, tag);
+  child.exec(cmd, function(code, stdout, stderr) {
+    if (code) {
+      return deferred.reject("Can't find the commit for tag " + tag);
+    } else {
+      return deferred.resolve(stdout.replace('\n', ''));
+    }
+  });
+  return deferred.promise;
+};
+
+get_date_of_commit = function(commit) {
+  var cmd, deferred;
+  deferred = q.defer();
+  cmd = util.format(GIT_COMMIT_DATE, commit);
+  child.exec(cmd, function(code, stdout, stderr) {
+    if (code) {
+      return deferred.reject("Can't find the commit " + commit);
+    } else {
+      return deferred.resolve(stdout.split('\n').slice(-2)[0].split(' ')[0]);
+    }
+  });
+  return deferred.promise;
+};
+
+get_date_of_tag = function(tag) {
+  return get_commit_of_tag(tag).then(function(commit) {
+    return get_date_of_commit(commit);
+  });
 };
 
 get_tag_of_commit = function(sha, tags) {
@@ -451,10 +489,10 @@ get_commit_output = function(commit, section_config) {
   return "- " + commit.subject + " (" + (link_to_commit(commit.hash)) + closes + ")" + commit_body + "\n";
 };
 
-print_version = function(version) {
+print_version = function(version, date) {
   var breaking_commits, commit, commit_output, commits, group, grouped_commits, non_grouped_commits, section_config, section_name, tag, _j, _k, _l, _len1, _len2, _len3, _len4, _m, _ref2, _ref3;
   tag = (_ref2 = version.tag) != null ? _ref2 : options.tag;
-  stream.write(util.format(HEADER_TPL, tag, tag, current_date()));
+  stream.write(util.format(HEADER_TPL, tag, tag, date != null ? date : current_date()));
   _ref3 = CONFIG.sections;
   for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
     section_config = _ref3[_j];
@@ -501,12 +539,12 @@ print_version = function(version) {
   return stream.write('\n');
 };
 
-print_versions = function(versions) {
+print_versions = function(versions, dates) {
   var version, _j, _len1, _results;
   _results = [];
   for (_j = 0, _len1 = versions.length; _j < _len1; _j++) {
     version = versions[_j];
-    _results.push(print_version(version));
+    _results.push(print_version(version, dates[version.tag]));
   }
   return _results;
 };
@@ -519,9 +557,23 @@ get_end = options.end === LAST_TAG ? get_previous_tag() : (d = q.defer(), d.reso
 
 all_tags = get_all_tags();
 
-q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
-  var first_sha, from, get_end_index, get_start_index, tags, to;
-  first_sha = _arg[0], tags = _arg[1], from = _arg[2], to = _arg[3];
+all_tags_date = all_tags.then(function(tags) {
+  return q.all(tags.map(function(tag) {
+    return get_date_of_tag(tag);
+  })).then(function(tags_date) {
+    var date, o, _j, _len1;
+    o = {};
+    for (i = _j = 0, _len1 = tags_date.length; _j < _len1; i = ++_j) {
+      date = tags_date[i];
+      o[tags[i]] = date;
+    }
+    return o;
+  });
+});
+
+q.all([first_commit, all_tags, get_start, get_end, all_tags_date]).then(function(_arg) {
+  var first_sha, from, get_end_index, get_start_index, tags, tags_date, to;
+  first_sha = _arg[0], tags = _arg[1], from = _arg[2], to = _arg[3], tags_date = _arg[4];
   tags = tags.sort(natural_sort);
   tags.unshift(first_sha);
   tags.push(HEAD);
@@ -545,7 +597,9 @@ q.all([first_commit, all_tags, get_start, get_end]).then(function(_arg) {
     if (to_tag !== to) {
       read_commits.push(read_git_log(options.grep, to_tag, to));
     }
-    return q.all(read_commits).then(curate_versions(tags_steps)).then(print_versions).fail(function(reason) {
+    return q.all(read_commits).then(curate_versions(tags_steps)).then(function(versions) {
+      return print_versions(versions, tags_date);
+    }).fail(function(reason) {
       return console.log(reason);
     });
   });

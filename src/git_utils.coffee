@@ -33,6 +33,35 @@ filter_commit = (commit) ->
 
   false
 
+get_commit_of_tag = (tag) ->
+  deferred = q.defer()
+  cmd = util.format(GIT_TAG_COMMIT, tag)
+  child.exec cmd, (code, stdout, stderr) ->
+    if code
+      deferred.reject("Can't find the commit for tag #{tag}")
+    else
+      deferred.resolve(stdout.replace('\n', ''))
+
+  deferred.promise
+
+get_date_of_commit = (commit) ->
+  deferred = q.defer()
+  cmd = util.format(GIT_COMMIT_DATE, commit)
+  child.exec cmd, (code, stdout, stderr) ->
+    if code
+      deferred.reject("Can't find the commit #{commit}")
+    else
+
+      deferred.resolve(stdout.split('\n')[-2..-1][0].split(' ')[0])
+
+  deferred.promise
+
+get_date_of_tag =  (tag) ->
+  get_commit_of_tag(tag)
+  .then (commit) ->
+    get_date_of_commit(commit)
+
+
 get_tag_of_commit = (sha, tags) ->
   cmd = GIT_COMMIT_SEARCH + sha
   deferred = q.defer()
