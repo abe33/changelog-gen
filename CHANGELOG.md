@@ -1,3 +1,10 @@
+a name="v0.4.0"></a>
+# v0.4.0 (2014-05-31)
+
+## :sparkles: Features
+
+- Implement reading dates from tag when tag is available ([eb21ca85](https://github.com/abe33/changelog-gen/commit/eb21ca853f9357ef0b55b4d6e7516f1a6e1c1238))
+
 <a name="v0.3.0"></a>
 # v0.3.0 (2014-05-30)
 
