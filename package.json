@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "qq": "*",
-    "emoticons": "0.1.x",
     "javascript-natural-sort": "~0.7.1",
     "oniguruma": "~2.0.0",
     "cson": "~1.6.0"
