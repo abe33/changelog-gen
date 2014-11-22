@@ -120,7 +120,7 @@ parse_raw_commit = (raw) ->
   lines = lines.filter (line) ->
     find_fixes(line, msg)
 
-  match = raw.match(/BREAKING CHANGE:([\s\S]*)/)
+  match = raw.match(/(?:BREAKING CHANGE|:warning):([\s\S]*)/)
   msg.breaking = match[1] if match
   msg.body = lines.join("\n")
 
