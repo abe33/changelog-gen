@@ -55,4 +55,4 @@ q.all([first_commit, all_tags, get_start, get_end, all_tags_date]).then ([first_
     .then (versions) ->
       print_versions(versions, tags_date)
     .fail (reason) ->
-      console.log reason
+      console.error reason
