@@ -313,7 +313,7 @@ get_first_commit = function() {
 };
 
 parse_raw_commit = function(raw) {
-  var lines, match, msg;
+  var breaking_regexp, lines, match, msg;
   if (raw == null) {
     return null;
   }
@@ -325,11 +325,13 @@ parse_raw_commit = function(raw) {
   lines = lines.filter(function(line) {
     return find_fixes(line, msg);
   });
-  match = raw.match(/BREAKING CHANGE:([\s\S]*)/);
+  msg.body = lines.join("\n");
+  breaking_regexp = /BREAKING CHANGE:([\s\S]*)/;
+  match = msg.body.match(breaking_regexp);
   if (match) {
     msg.breaking = match[1];
+    msg.body = msg.body.replace(breaking_regexp, '');
   }
-  msg.body = lines.join("\n");
   return msg;
 };
 
