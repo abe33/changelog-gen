@@ -133,7 +133,7 @@ print_version = (version, date) ->
   if breaking_commits.length
     stream.write '\n## Breaking Changes\n\n'
     for commit in breaking_commits
-      stream.write "- due to #{link_to_commit(commit.hash)},#{lower_first_char commit.breaking}"
+      stream.write "- due to #{link_to_commit(commit.hash)},#{lower_first_char commit.breaking}\n"
 
   stream.write '\n'
 

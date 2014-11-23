@@ -533,7 +533,7 @@ print_version = function(version, date) {
     stream.write('\n## Breaking Changes\n\n');
     for (_m = 0, _len4 = breaking_commits.length; _m < _len4; _m++) {
       commit = breaking_commits[_m];
-      stream.write("- due to " + (link_to_commit(commit.hash)) + "," + (lower_first_char(commit.breaking)));
+      stream.write("- due to " + (link_to_commit(commit.hash)) + "," + (lower_first_char(commit.breaking)) + "\n");
     }
   }
   return stream.write('\n');
