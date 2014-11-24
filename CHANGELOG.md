@@ -1,3 +1,17 @@
+<a name="v0.5.0"></a>
+# v0.5.0 (2014-11-24)
+
+## :sparkles: Features
+
+- Add match for :warning: as breaking change indicator ([6cbcbf31](https://github.com/abe33/changelog-gen/commit/6cbcbf31ff0132b3e3873c3246b04da026feb8ff))  <br>Small change to save some typing on breaking changes, allows using
+either `
+
+## :bug: Bug Fixes
+
+- Fix multiple breaking changes appearing on a single line ([c0979a62](https://github.com/abe33/changelog-gen/commit/c0979a624e998fdcb10fbd05148d7ff8d6d6fefd))
+- Fix log output corrupting markdown ([0c64cf5c](https://github.com/abe33/changelog-gen/commit/0c64cf5cd08a1875205c31784b41dc6476920416))
+- Fix `include_body` should not include breaking changes ([484c24f0](https://github.com/abe33/changelog-gen/commit/484c24f0ab1b3435f8d6df765e8954f90f975d60))
+
 <a name="v0.4.0"></a>
 # v0.4.0 (2014-05-31)
 
