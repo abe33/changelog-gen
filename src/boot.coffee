@@ -30,10 +30,10 @@ first_to_exists = (files...) ->
   return file for file in files when fs.existsSync(file)
 
 warn = ->
-  console.log "WARNING:", util.format.apply(null, arguments)
+  console.error "WARNING:", util.format.apply(null, arguments)
 
 error = ->
-  console.log "ERROR:", util.format.apply(null, arguments)
+  console.error "ERROR:", util.format.apply(null, arguments)
   process.exit()
 
 string_or_url = (field) ->

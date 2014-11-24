@@ -61,11 +61,11 @@ first_to_exists = function() {
 };
 
 warn = function() {
-  return console.log("WARNING:", util.format.apply(null, arguments));
+  return console.error("WARNING:", util.format.apply(null, arguments));
 };
 
 error = function() {
-  console.log("ERROR:", util.format.apply(null, arguments));
+  console.error("ERROR:", util.format.apply(null, arguments));
   return process.exit();
 };
 
@@ -600,7 +600,7 @@ q.all([first_commit, all_tags, get_start, get_end, all_tags_date]).then(function
     return q.all(read_commits).then(curate_versions(tags_steps)).then(function(versions) {
       return print_versions(versions, tags_date);
     }).fail(function(reason) {
-      return console.log(reason);
+      return console.error(reason);
     });
   });
 });
