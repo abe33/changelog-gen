@@ -56,6 +56,11 @@ sections: [
     match: '^:racehorse:\\s+(.*)$'
     replace: '\\1'
   }
+  {
+    name: ':arrow_up: Dependencies Update'
+    match: '^:arrow_up:\\s+(.*)$'
+    replace: '\\1'
+  }
 ]
 ```
 
