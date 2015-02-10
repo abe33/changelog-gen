@@ -155,7 +155,7 @@ if (options.config != null) {
 
 config_file = first_to_exists.apply(null, config_file_paths);
 
-CONFIG = /\.cson$/.test(config_file) ? CSON.parseFileSync(config_file) : require(config_file);
+CONFIG = CSON.parseFile(config_file);
 
 if (CONFIG.sections == null) {
   error("Can't locate the `sections` field in " + config_file);

@@ -104,10 +104,7 @@ else
 
 config_file = first_to_exists(config_file_paths...)
 
-CONFIG = if /\.cson$/.test config_file
-  CSON.parseFileSync(config_file)
-else
-  require(config_file)
+CONFIG = CSON.parseFile(config_file)
 
 error("Can't locate the `sections` field in #{config_file}") unless CONFIG.sections?
 
