@@ -10,20 +10,20 @@ A command line tool to generates changelog files based on simple conventions in 
 
 In a git project directory that contains a `package.json` file:
 
-`changelog` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available.
+`changelog_gen` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available.
 
 In a git project  directory that doesn't contain a `package.json` file:
 
-`changelog --repo {REPO_URL}` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available. All the generated links to issues and commits will be constructed using the passed-in `{REPO_URL}`.
+`changelog_gen --repo {REPO_URL}` - Will generates a markdown changelog from the latest available tag or from the first commit if no tags are available. All the generated links to issues and commits will be constructed using the passed-in `{REPO_URL}`.
 
 ### Specifying The Commits Range
 
 You can specify the commit range using the `--start` and `--end` options such as:
 
-- `changelog --start TAIL` - Will start with the root commit in the current commit ancestors.
-- `changelog --start {TAG}` - Will start with the first commit after the given `{TAG}`.
-- `changelog --start {SHA}` - Will start at the first commit after the last tag before the specified commit. Meaning that if the commit specified with the given `{SHA}` is positionned 3 commits after the `v0.0.1` tag, the range will spans `(v0.0.1 + 1commit)..HEAD`.
-- `changelog --start v0.0.1 --end v0.0.2` - Will spans only the commits between these two tags.
+- `changelog_gen --start TAIL` - Will start with the root commit in the current commit ancestors.
+- `changelog_gen --start {TAG}` - Will start with the first commit after the given `{TAG}`.
+- `changelog_gen --start {SHA}` - Will start at the first commit after the last tag before the specified commit. Meaning that if the commit specified with the given `{SHA}` is positionned 3 commits after the `v0.0.1` tag, the range will spans `(v0.0.1 + 1commit)..HEAD`.
+- `changelog_gen --start v0.0.1 --end v0.0.2` - Will spans only the commits between these two tags.
 
 ## Configuration
 
@@ -33,7 +33,7 @@ The configuration file can be either a JSON or a CSON file located in the same d
 
 You can specify another path to the configuration file using the `--config` option.
 
-`changelog --config my_config.cson`
+`changelog_gen --config my_config.cson`
 
 The configuration file **MUST** contains a `sections` entry with an array of the various sections to appear in a version changelog. A section is a group of commits in the output changelog.
 
