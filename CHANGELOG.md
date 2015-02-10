@@ -1,3 +1,10 @@
+<a name="v0.6.1"></a>
+# v0.6.1 (2015-02-10)
+
+## :arrow_up: Dependencies Update
+
+- Update most dependencies
+
 <a name="v0.6.0"></a>
 # v0.6.0 (2015-02-10)
 
