@@ -1,3 +1,10 @@
+<a name="v0.6.0"></a>
+# v0.6.0 (2015-02-10)
+
+## :sparkles: Features
+
+- Add a new default section for dependencies updates ([e0f15176](https://github.com/abe33/changelog-gen/commit/e0f15176a26aafd4865cb017c1e98cbd3f989229))
+
 <a name="v0.5.0"></a>
 # v0.5.0 (2014-11-24)
 
