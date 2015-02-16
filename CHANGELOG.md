@@ -1,3 +1,10 @@
+<a name="v0.6.2"></a>
+# v0.6.2 (2015-02-16)
+
+## :bug: Bug Fixes
+
+- Fix broken CSON loading ([7688d90d](https://github.com/abe33/changelog-gen/commit/7688d90d883bf46f0ecdc85f7818b8190bc3b3a0))
+
 <a name="v0.6.1"></a>
 # v0.6.1 (2015-02-10)
 
