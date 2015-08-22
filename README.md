@@ -1,6 +1,6 @@
 # changelog-gen
 
-A command line tool to generates changelog files based on simple conventions in commits summaries.
+A command line tool to generate changelog files based on simple conventions in commits summaries.
 
 ## Installation
 
