@@ -1,3 +1,14 @@
+<a name="v0.7.0"></a>
+# v0.7.0 (2015-09-21)
+
+## :bug: Bug Fixes
+
+- Fix typo in README ([a7a92179](https://github.com/abe33/changelog-gen/commit/a7a921795f145db4b667d78b8a02f84d18420454))
+
+## :arrow_up: Dependencies Update
+
+- Bump oniguruma to version 5.x ([9f824789](https://github.com/abe33/changelog-gen/commit/9f8247894550892d5269f32f4a9b904ae9fa6572))
+
 <a name="v0.6.2"></a>
 # v0.6.2 (2015-02-16)
 
