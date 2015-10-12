@@ -1,3 +1,14 @@
+<a name="v0.8.0"></a>
+# v0.8.0 (2015-10-12)
+
+## :bug: Bug Fixes
+
+- Fix missing promise failure trap ([edaa8be5](https://github.com/abe33/changelog-gen/commit/edaa8be5052b0df16fa3d629c70eedb7b5af0c99), [#9](https://github.com/abe33/changelog-gen/issues/9))
+
+## :arrow_up: Dependencies Update
+
+- Bump cson to version 3 ([ea1a5df3](https://github.com/abe33/changelog-gen/commit/ea1a5df329ed99dab3f43d95e5c6b7434fa5883b))
+
 <a name="v0.7.0"></a>
 # v0.7.0 (2015-09-21)
 
