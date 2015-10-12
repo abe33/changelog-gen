@@ -64,8 +64,12 @@ warn = function() {
   return console.error("WARNING:", util.format.apply(null, arguments));
 };
 
-error = function() {
-  console.error("ERROR:", util.format.apply(null, arguments));
+error = function(e) {
+  if (e.stack != null) {
+    console.error(e.stack);
+  } else {
+    console.error("Error:", util.format.apply(null, e));
+  }
   return process.exit();
 };
 
@@ -602,7 +606,11 @@ q.all([first_commit, all_tags, get_start, get_end, all_tags_date]).then(function
     return q.all(read_commits).then(curate_versions(tags_steps)).then(function(versions) {
       return print_versions(versions, tags_date);
     }).fail(function(reason) {
-      return console.error(reason);
+      return error(reason);
     });
+  }).fail(function(reason) {
+    return error(reason);
   });
+}).fail(function(reason) {
+  return error(reason);
 });

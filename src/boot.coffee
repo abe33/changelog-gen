@@ -32,8 +32,11 @@ first_to_exists = (files...) ->
 warn = ->
   console.error "WARNING:", util.format.apply(null, arguments)
 
-error = ->
-  console.error "ERROR:", util.format.apply(null, arguments)
+error = (e) ->
+  if e.stack?
+    console.error e.stack
+  else
+    console.error "Error:", util.format.apply(null, e)
   process.exit()
 
 string_or_url = (field) ->
