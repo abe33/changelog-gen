@@ -105,7 +105,7 @@ else
 config_file = first_to_exists(config_file_paths...)
 
 CONFIG = if /\.cson$/.test config_file
-  CSON.parseFileSync(config_file)
+  CSON.parse(fs.readFileSync(config_file).toString())
 else
   require(config_file)
 
