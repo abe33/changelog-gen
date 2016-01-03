@@ -36,7 +36,7 @@ error = (e) ->
   if e.stack?
     console.error e.stack
   else
-    console.error "Error:", util.format.apply(null, e)
+    console.error "Error:", util.format.apply(null, [e])
   process.exit()
 
 string_or_url = (field) ->

@@ -68,7 +68,7 @@ error = function(e) {
   if (e.stack != null) {
     console.error(e.stack);
   } else {
-    console.error("Error:", util.format.apply(null, e));
+    console.error("Error:", util.format.apply(null, [e]));
   }
   return process.exit();
 };
