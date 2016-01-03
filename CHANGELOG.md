@@ -1,3 +1,10 @@
+<a name="v0.8.1"></a>
+# v0.8.1 (2016-01-03)
+
+## :bug: Bug Fixes
+
+- Fix bad arguments type in error function ([887780f0](https://github.com/abe33/changelog-gen/commit/887780f0fe390d223fcadb1858616684b6e5efcc))
+
 <a name="v0.8.0"></a>
 # v0.8.0 (2015-10-12)
 
