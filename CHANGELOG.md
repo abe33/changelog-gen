@@ -1,3 +1,14 @@
+<a name="v1.0.0"></a>
+# v1.0.0 (2017-02-23)
+
+:fire: :package: oniguruma ([a9b21fa9](https://github.com/abe33/changelog-gen/commit/a9b21fa91fa2f0b315b1a7a16a10999fc5d2e751))
+
+It now only relies on native JS Regular Expressions.
+
+## :bug: Bug Fixes
+
+- Fix bad arguments type in error function ([efad9ef0](https://github.com/abe33/changelog-gen/commit/efad9ef0e28e29bb2c73af093b631365c30a3c79))
+
 <a name="v0.8.1"></a>
 # v0.8.1 (2016-01-03)
 
