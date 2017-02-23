@@ -5,7 +5,6 @@ child = require 'child_process'
 util = require 'util'
 CSON = require 'cson'
 natural_sort = require 'javascript-natural-sort'
-{OnigRegExp} = require 'oniguruma'
 
 LAST_TAG = 'last-tag'
 FIRST_COMMIT = 'TAIL'
@@ -115,4 +114,4 @@ else
 error("Can't locate the `sections` field in #{config_file}") unless CONFIG.sections?
 
 for section,i in CONFIG.sections
-  section.regexp = new OnigRegExp(section.match)
+  section.regexp = new RegExp(section.match)

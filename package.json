@@ -25,7 +25,6 @@
   "dependencies": {
     "cson": "^3.0.0",
     "javascript-natural-sort": "^0.7.1",
-    "oniguruma": "^5.0.0",
     "qq": "*"
   },
   "devDependencies": {

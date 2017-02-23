@@ -64,7 +64,7 @@ sections: [
 ]
 ```
 
-Each `sections` entry must have at least a `name` and `match` attribute. The `name` attribute is the content of the section's title in the output, the `regexp` attribute being a string containing an [oniguruma regular expression](http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt) that will be used against the commits summary.
+Each `sections` entry must have at least a `name` and `match` attribute. The `name` attribute is the content of the section's title in the output, the `regexp` attribute being a string containing a JS regular expression that will be used against the commits summary.
 
 Optionally the following additional section attributes are available:
 - `replace` - A string to use as replacement for the commit summary. The capture groups from the matching regexp can be accessed using the `\x` syntax where `x` is the index of the capture group to insert.

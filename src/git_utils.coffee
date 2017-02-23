@@ -17,15 +17,14 @@ filter_commit = (commit) ->
 
   for section in CONFIG.sections
     {regexp, name} = section
-    match = regexp.searchSync(subject)
+    match = regexp.exec(subject)
     if match?
       commit.section = name
       if section.replace?
-        commit.subject = section.replace.replace /\\(\d)/g, (m,i) ->
-          match[i].match
+        commit.subject = section.replace.replace /\\(\d)/g, (m,i) -> match[i] ? ''
 
       if section.grouping_capture?
-        commit.group = match[section.grouping_capture].match
+        commit.group = match[section.grouping_capture]
 
       return true
 
