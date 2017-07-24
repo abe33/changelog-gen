@@ -1,3 +1,10 @@
+<a name="v1.0.1"></a>
+# v1.0.1 (2017-07-24)
+
+## :bug: Bug Fixes
+
+- Fix issue with % in string on new node versions ([2f94e996](https://github.com/abe33/changelog-gen/commit/2f94e9966414ad6567ab8742d07e3fb2ae81ab95))
+
 <a name="v1.0.0"></a>
 # v1.0.0 (2017-02-23)
 
