@@ -45,12 +45,11 @@ get_commit_of_tag = (tag) ->
 
 get_date_of_commit = (commit) ->
   deferred = q.defer()
-  cmd = util.format(GIT_COMMIT_DATE, commit)
+  cmd = GIT_COMMIT_DATE(commit)
   child.exec cmd, (code, stdout, stderr) ->
     if code
       deferred.reject("Can't find the commit #{commit}")
     else
-
       deferred.resolve(stdout.split('\n')[-2..-1][0].split(' ')[0])
 
   deferred.promise

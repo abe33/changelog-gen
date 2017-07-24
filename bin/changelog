@@ -38,7 +38,9 @@ GIT_COMMIT_SEARCH = 'git name-rev --name-only ';
 
 GIT_TAG_COMMIT = 'git rev-parse %s';
 
-GIT_COMMIT_DATE = 'git show -s --format=%ci %s';
+GIT_COMMIT_DATE = function(s) {
+  return "git show -s --format=%ci " + s;
+};
 
 DEFAULT_CONFIG = path.resolve(__dirname, '..', 'config', 'default.cson');
 
@@ -233,7 +235,7 @@ get_commit_of_tag = function(tag) {
 get_date_of_commit = function(commit) {
   var cmd, deferred;
   deferred = q.defer();
-  cmd = util.format(GIT_COMMIT_DATE, commit);
+  cmd = GIT_COMMIT_DATE(commit);
   child.exec(cmd, function(code, stdout, stderr) {
     if (code) {
       return deferred.reject("Can't find the commit " + commit);

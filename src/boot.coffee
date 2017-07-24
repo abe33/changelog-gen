@@ -17,7 +17,7 @@ GIT_TAGS_CMD = 'git tag'
 GIT_FIRST_COMMIT = 'git rev-list HEAD | tail -n 1'
 GIT_COMMIT_SEARCH = 'git name-rev --name-only '
 GIT_TAG_COMMIT = 'git rev-parse %s'
-GIT_COMMIT_DATE = 'git show -s --format=%ci %s'
+GIT_COMMIT_DATE = (s) -> "git show -s --format=%ci #{s}"
 
 DEFAULT_CONFIG = path.resolve __dirname,  '..', 'config', 'default.cson'
 
