@@ -1,3 +1,12 @@
+<a name="v1.1.0"></a>
+# v1.1.0 (2021-06-17)
+
+Complete rewrite in vanilla es6.
+
+## Breaking Changes
+
+- due to [e6884b04](https://github.com/abe33/changelog-gen/commit/e6884b04d977621e5e9c866c37307a40a999038f), the binary is no longer compatible with node < 7.5.0
+
 <a name="v1.0.1"></a>
 # v1.0.1 (2017-07-24)
 
