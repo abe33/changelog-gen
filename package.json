@@ -1,6 +1,6 @@
 {
   "name": "changelog-gen",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Small Utility to generates Changelog files",
   "repository": {
     "type": "git",
